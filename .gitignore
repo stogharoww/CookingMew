@@ -1,0 +1,55 @@
+# Qt Creator user-specific files
+*.pro.user
+*.pro.user.*
+*.creator.user
+*.creator.user.*
+*.qbs.user
+*.qbs.user.*
+*.autosave
+
+# Build directories
+build-*/
+cmake-build-*/
+*/build-*
+*/cmake-build-*
+
+# CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+
+# Qt generated files
+moc_*.cpp
+moc_*.h
+ui_*.h
+qrc_*.cpp
+
+# Compiled object files
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.lib
+*.exp
+
+# Windows binaries
+*.exe
+*.dll
+*.pdb
+
+# Logs and temp
+*.log
+*.tmp
+*.cache
+*.swp
+
+# IDE folders
+.vs/
+.vscode/
+
+# OS junk
+Thumbs.db
+.DS_Store
