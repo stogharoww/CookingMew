@@ -14,12 +14,14 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql)
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
+
+
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    find_package(Qt6 REQUIRED COMPONENTS Core)
+
     qt_add_executable(CookingMew
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
@@ -28,6 +30,16 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Database/Models.h
         Database/database.h Database/database.cpp
         Database/DatabaseCore.h
+
+
+
+        Interface/Interactive/ButtonMew.cpp Interface/Items/IngridientsList.cpp Interface/Pages/HomePage.cpp Interface/Virtual/Button.h Interface/Virtual/Page.h
+        Interface/Interactive/ButtonMew.cpp Interface/Items/IngridientsList.cpp Interface/Pages/HomePage.cpp Interface/Virtual/Button.h Interface/Virtual/Page.h
+        Interface/Items/IngridientsList.cpp
+        Interface/Interactive/ButtonMew.h Interface/Interactive/ButtonMew.cpp
+        Interface/Pages/HomePage.h Interface/Pages/HomePage.cpp
+        Interface/Items/IngridientsList.h Interface/Items/IngridientsList.cpp
+        Mew.h Mew.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET CookingMew APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -49,6 +61,7 @@ else()
 endif()
 
 target_link_libraries(CookingMew PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Sql)
+target_link_libraries(CookingMew PRIVATE Qt6::Core)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
