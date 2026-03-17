@@ -43,6 +43,7 @@ else()
     else()
         add_executable(CookingMew
             ${PROJECT_SOURCES}
+            Database/database.cpp Database/database.h Database/DatabaseCore.h Database/Models.h
         )
     endif()
 endif()

@@ -11,7 +11,7 @@ struct Categories_rec
     Categories_rec() {}
 };
 
-struct Ingregients
+struct Ingredients
 {
     int id;
     QString name;
@@ -21,7 +21,7 @@ struct Ingregients
     qreal calories;
     int category_ing_id;
 
-    Ingregients() {}
+    Ingredients() {}
 };
 
 struct Recipe_ingredients
