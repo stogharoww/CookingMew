@@ -29,21 +29,22 @@ public:
     /// \brief set_color: устанавливает цвет кнопки
     /// \param col: Цвет в формате RGB
     ///
-    virtual void set_color(QColor& col) = 0;
+    virtual void set_color(QColor& col);
 
 
 signals:
     void clicked();
 
 protected:
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent * event) override = 0;
-    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent * event) override = 0;
-    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event) override = 0;
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent * event) override;
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent * event) override;
+    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent * event) override;
+    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent * event) override;
 
     ///
     /// \brief change_color: меняет цвет кнопки после нажатия
     ///
-    virtual void change_color() = 0;
+    virtual void change_color();
     ///
     /// \brief set_form: устанавливает форму кнопки
     ///
@@ -51,5 +52,7 @@ protected:
 
 
     bool _changed = false;
+    QColor _color;
+    QBrush _brush;
 };
 
