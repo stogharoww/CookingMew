@@ -30,6 +30,7 @@ public:
     /// \param col: Цвет в формате RGB
     ///
     virtual void set_color(QColor& col);
+    virtual void set_second_color(QColor& col);
 
 
 signals:
@@ -52,7 +53,9 @@ protected:
 
 
     bool _changed = false;
-    QColor _color;
+    QColor _main_color;
+    QColor _second_color = Qt::black;
     QBrush _brush;
+    QBrush _second_brush;
 };
 

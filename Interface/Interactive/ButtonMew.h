@@ -1,6 +1,11 @@
 #pragma once
 
 #include "../Virtual/Button.h"
+#include <QGraphicsPixmapItem>
+#include <QColor>
+#include <QSize>
+#include <QGraphicsTextItem>
+#include <QString>
 
 class ButtonMew : public Button
 {
@@ -12,16 +17,16 @@ public:
     /// \param path: путь до картинки
     ///
     void set_pixmap(QString& path) override;
-    ///
-    /// \brief set_color: устанавливает цвет кнопки
-    /// \param col: Цвет в формате RGB
-    ///
-    void set_color(QColor& col) override;
+    void set_text(QString& text);
 
 
 
 
 private:
-
+    void set_form() override;
+    QColor _textColor;
+    QGraphicsPixmapItem *_pixmap;
+    QSize _buttonSize;
+    QGraphicsTextItem *_text;
 
 };
