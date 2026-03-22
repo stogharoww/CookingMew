@@ -1,6 +1,18 @@
 #include "ButtonMew.h"
+#include <QPen>
+#include <QPainter>
+#include <QStylePainter>
+#include <QLinearGradient>
 
-ButtonMew::ButtonMew() {
+ButtonMew::ButtonMew(ColorScheme& scheme, QGraphicsItem* parent)
+    : Button(scheme, parent)
+{
+    setAcceptHoverEvents(true);
+    setAcceptedMouseButtons(Qt::LeftButton);
+
+    _brush.setColor(currentColor);
+    _brush.setStyle(Qt::SolidPattern);
+    setBrush(_brush);
 
 }
 
@@ -19,10 +31,50 @@ void ButtonMew::set_pixmap(QString &path)
 
 void ButtonMew::set_text(QString &text)
 {
-    _text = new QGraphicsTextItem(text, this);
-    QRectF rect = _pixmap->boundingRect();
-    _text->setPos(rect.x() + 5, 0);
-    _text->setDefaultTextColor(_second_color);
+    _text = text;
+    update();
+}
+
+void ButtonMew::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+{
+    // base forms
+    QPoint firstEllipse(10, 10);
+    QPoint secondEllipse(80, 10);
+    QPoint rectPos(10, -10);
+    QSize size(70, 40);
+    QRect rect(rectPos, size);
+    QRectF b_rect(-10, -10, rect.width() + 40, rect.height());
+    setBoundingRect(b_rect);
+
+
+    painter->setRenderHint(QPainter::Antialiasing, true);
+    painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+    painter->setRenderHint(QPainter::TextAntialiasing, true);
+
+    //pens
+    QPen main_pen(currentColor, 2);
+    QPen second_pen(secondColor, 2);
+
+    painter->setPen(main_pen);
+
+    //painter->setBrush(_brush);
+    QLinearGradient grad(rect.topLeft(), rect.bottomLeft());
+    grad.setColorAt(0.0, currentColor.lighter(130));
+    grad.setColorAt(1.0, currentColor.lighter(130));
+    painter->setBrush(grad);
+
+
+    painter->setPen(Qt::NoPen);
+    painter->drawEllipse(firstEllipse, 20, 20);
+    painter->drawEllipse(secondEllipse, 20, 20);
+    painter->drawRect(rect);
+
+    painter->setPen(second_pen);
+    painter->setBrush(Qt::NoBrush);
+    painter->drawText(rect.width() / 2, rect.height() / 3, _text);
+
+
+
 }
 
 

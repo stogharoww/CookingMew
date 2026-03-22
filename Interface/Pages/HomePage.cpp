@@ -1,3 +1,8 @@
 #include "HomePage.h"
 
-HomePage::HomePage() {}
+
+HomePage::HomePage(ColorScheme scheme, QRectF rect)
+    : Page(scheme, rect)
+{
+
+}

@@ -41,6 +41,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Interface/Items/IngridientsList.h Interface/Items/IngridientsList.cpp
         Mew.h Mew.cpp
         Interface/Virtual/Button.cpp
+        Interface/ColorScheme.h Interface/ColorScheme.cpp
+        Interface/Virtual/Page.cpp
+        Interface/Items/Line.h Interface/Items/Line.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET CookingMew APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
