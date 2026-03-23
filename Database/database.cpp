@@ -1,3 +1,7 @@
 #include "database.h"
 
-Database::Database() {}
+
+DataBase::DataBase(const QString &dbPath)
+{
+
+}

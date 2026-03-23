@@ -3,6 +3,8 @@
 #include <QSqlRecord>
 #include <QVariant>
 
+
+
 bool CategoriesRec::Read()
 {
     _db.open();

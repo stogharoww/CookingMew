@@ -1,9 +1,9 @@
-#include "Recipes.h"
+#include "recipes.h"
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QVariant>
 
-bool Recipes::Read()
+bool recipes::Read()
 {
     _db.open();
     if (!IsOpened()) return false;
@@ -11,8 +11,8 @@ bool Recipes::Read()
     QSqlQuery q(_db);
     if (!q.exec("SELECT * FROM Recipes")) return false;
 
-    QVector<Recipe> vec;
-    QHash<int, Recipe> hash;
+    QVector<Recipes> vec;
+    QHash<int, Recipes> hash;
 
     int colId = q.record().indexOf("id");
     int colTitle = q.record().indexOf("title");
@@ -21,7 +21,7 @@ bool Recipes::Read()
 
     while (q.next())
     {
-        Recipe r;
+        Recipes r;
         r.id = q.value(colId).toInt();
         r.title = q.value(colTitle).toString();
         r.instructions = q.value(colInstr).toString();
@@ -38,7 +38,7 @@ bool Recipes::Read()
     return true;
 }
 
-bool Recipes::Add(const Recipe& r)
+bool recipes::Add(const Recipes& r)
 {
     _db.open();
     if (!IsOpened()) return false;
@@ -61,7 +61,7 @@ bool Recipes::Add(const Recipe& r)
     return true;
 }
 
-bool Recipes::Update(const Recipe& r)
+bool recipes::Update(const Recipes& r)
 {
     _db.open();
     if (!IsOpened()) return false;
@@ -86,7 +86,7 @@ bool Recipes::Update(const Recipe& r)
     return true;
 }
 
-bool Recipes::Delete(const Recipe& r)
+bool recipes::Delete(const Recipes& r)
 {
     _db.open();
     if (!IsOpened()) return false;

@@ -87,7 +87,7 @@ bool Recipeingred::Update(const Recipeingred& ri)
     return true;
 }
 
-bool recipeingred::Delete(const recipeingred& ri)
+bool Recipeingred::Delete(const Recipeingred& ri)
 {
     _db.open();
     if (!IsOpened()) return false;

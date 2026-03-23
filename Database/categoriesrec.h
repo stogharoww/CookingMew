@@ -10,7 +10,7 @@ class CategoriesRec : DatabaseCore
 public:
     int id = 0;
     QString name;
-    CategoriesRec();
+    CategoriesRec() = default;
     explicit CategoriesRec(const QSqlDatabase& db): DatabaseCore(db)
     {
         _db = db;

@@ -7,6 +7,7 @@
 class recipes : DatabaseCore
 {
 public:
+
     recipes();
     explicit recipes(const QSqlDatabase& db) : DatabaseCore(db) {}
 
@@ -21,4 +22,5 @@ public:
 private:
     QVector<Recipes> _vector;
     QHash<int, Recipes> _hash;
+    bool IsOpened() const { return _db.isOpen(); }
 };

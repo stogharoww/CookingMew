@@ -3,10 +3,13 @@
 #include <QHash>
 #include "Models.h"
 #include <QVector>
+#include <QString>
 
 class units : DatabaseCore
 {
 public:
+    int id;
+    QString name;
     units();
     explicit units(const QSqlDatabase& db) : DatabaseCore(db)
     {
@@ -19,12 +22,13 @@ public:
     //hello
     bool Add(const Units& item);
     bool Update(const Units& item);
-    bool Delette(const Units& item);
+    bool Delete(const Units& item);
 
 private:
     QSqlDatabase _db;
     QVector<Units> _vector;
     QHash<int, Units> _hash;
+    bool IsOpened() const { return _db.isOpen(); }
 };
 
 

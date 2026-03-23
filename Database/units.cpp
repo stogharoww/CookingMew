@@ -1,11 +1,9 @@
 #include "units.h"
-#include "Models.h"
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QVariant>
-#include <QVector>
 
-bool Units::Read()
+bool units::Read()
 {
     _db.open();
     if (!IsOpened()) return false;
@@ -13,7 +11,7 @@ bool Units::Read()
     QSqlQuery q(_db);
     if (!q.exec("SELECT * FROM Units")) return false;
 
-    QVector<Units> vector;
+    QVector<Units> vec;
     QHash<int, Units> hash;
 
     int colId = q.record().indexOf("id");
@@ -22,7 +20,7 @@ bool Units::Read()
 
     while (q.next())
     {
-        Unit u;
+        Units u;
         u.id = q.value(colId).toInt();
         u.name = q.value(colName).toString();
         u.short_name = q.value(colShort).toString();
@@ -38,7 +36,7 @@ bool Units::Read()
     return true;
 }
 
-bool Units::Add(const Unit& u)
+bool units::Add(const Units& u)
 {
     _db.open();
     if (!IsOpened()) return false;
@@ -59,7 +57,7 @@ bool Units::Add(const Unit& u)
     return true;
 }
 
-bool Units::Update(const Unit& u)
+bool units::Update(const Units& u)
 {
     _db.open();
     if (!IsOpened()) return false;
@@ -81,7 +79,7 @@ bool Units::Update(const Unit& u)
     return true;
 }
 
-bool Units::Delete(const Units& item)
+bool units::Delete(const Units& u)
 {
     _db.open();
     if (!IsOpened()) return false;

@@ -5,7 +5,7 @@
 class DatabaseCore
 {
 public:
-    DatabaseCore();
+    DatabaseCore() = default;;
     /// Конструктор принимает подключение к БД
     explicit DatabaseCore(const QSqlDatabase& db) : _db(db) {}
 
