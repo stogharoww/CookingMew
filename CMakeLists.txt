@@ -45,6 +45,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Interface/Virtual/Page.cpp
         Interface/Items/Line.h Interface/Items/Line.cpp
         res.qrc
+        Database/categoriesrec.cpp Database/categoriesrec.h Database/database.cpp Database/database.h Database/DatabaseCore.h Database/ingredients.cpp Database/ingredients.h Database/Models.h Database/recipeingred.cpp Database/recipeingred.h Database/recipes.cpp Database/recipes.h Database/units.cpp Database/units.h
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET CookingMew APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
