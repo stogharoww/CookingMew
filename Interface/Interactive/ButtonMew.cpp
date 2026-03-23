@@ -14,6 +14,7 @@ ButtonMew::ButtonMew(ColorScheme& scheme, QGraphicsItem* parent)
     _brush.setStyle(Qt::SolidPattern);
     setBrush(_brush);
 
+
 }
 
 void ButtonMew::set_pixmap(QString &path)
@@ -31,7 +32,9 @@ void ButtonMew::set_pixmap(QString &path)
 
 void ButtonMew::set_text(QString &text)
 {
+
     _text = text;
+
     update();
 }
 
@@ -50,6 +53,8 @@ void ButtonMew::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
     painter->setRenderHint(QPainter::Antialiasing, true);
     painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
     painter->setRenderHint(QPainter::TextAntialiasing, true);
+
+    painter->setFont(font);
 
     //pens
     QPen main_pen(currentColor, 2);

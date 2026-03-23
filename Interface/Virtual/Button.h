@@ -10,6 +10,8 @@
 #include <QGraphicsItem>
 #include <QVector>
 #include "../ColorScheme.h"
+#include <QFont>
+#include <QFontDatabase>
 
 
 class Button: public QObject, public QGraphicsItem
@@ -21,6 +23,8 @@ public:
     {
         setAcceptHoverEvents(true);
         setColorScheme();
+        font = QFont(arial, 18);
+
 
     }
     virtual ~Button() = default;
@@ -80,6 +84,9 @@ protected:
     QColor pressedColor;   // цвет при нажатии
     QColor currentColor;   // текущий цвет кнопки
 
+    int id = QFontDatabase::addApplicationFont(":/fonts/resourses/fonts/ARIAL.TTF");
+    QString arial = QFontDatabase::applicationFontFamilies(id).at(0);
+    QFont font;
 
 };
 

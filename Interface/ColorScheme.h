@@ -28,6 +28,7 @@ private:
     QColor background = QColor("#1a0000"); // фон
     QColor textTheme = QColor("#F5F5F5"); // цвет текста вне кнопок (если надо)
 
+
     //light theme
     QColor lightBase = QColor("#B00020"); // основной цвет кнопки
     QColor lightSecond = QColor("#1a0000"); // текст
