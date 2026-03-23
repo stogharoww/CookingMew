@@ -12,6 +12,7 @@
 #include <QRectF>
 
 
+
 class Page: public QGraphicsItemGroup
 {
 public:
@@ -19,15 +20,19 @@ public:
 
 
     virtual void create_left_pannel();
+    virtual void resize(int width, int height);
 protected:
     //virtual void create_central_panel();
     //virtual void create_right_panel();
+    virtual void update_pages();
     virtual QRectF boundingRect() const override;
-
     ColorScheme scheme;
     QRectF rect;
     qreal width;
     qreal height;
+    ButtonMew *button;
+    ButtonMew *homeBtm;
+
 
 
 };

@@ -29,6 +29,7 @@ void Button::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void Button::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
+    qDebug() << "Button:: hover event";
     currentColor = hoverColor;
     _brush.setColor(currentColor);
     update();

@@ -21,6 +21,7 @@ public:
     {
         setAcceptHoverEvents(true);
         setColorScheme();
+
     }
     virtual ~Button() = default;
 
@@ -78,6 +79,7 @@ protected:
     QColor hoverColor;     // цвет при наведении
     QColor pressedColor;   // цвет при нажатии
     QColor currentColor;   // текущий цвет кнопки
+
 
 };
 

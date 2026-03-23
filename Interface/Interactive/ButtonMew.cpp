@@ -39,9 +39,9 @@ void ButtonMew::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
 {
     // base forms
     QPoint firstEllipse(10, 10);
-    QPoint secondEllipse(80, 10);
+    QPoint secondEllipse(110, 10);
     QPoint rectPos(10, -10);
-    QSize size(70, 40);
+    QSize size(100, 40);
     QRect rect(rectPos, size);
     QRectF b_rect(-10, -10, rect.width() + 40, rect.height());
     setBoundingRect(b_rect);

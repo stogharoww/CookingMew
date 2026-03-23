@@ -16,13 +16,15 @@ QVector<QColor> ColorScheme::getThemeColor()
     QVector<QColor> colorNightTheme = {
         baseColor, secondColor,
         hover, pressed, border,
-        background
+        background,
+        textTheme
     };
 
     QVector<QColor> colorDayTheme = {
         lightBase, lightSecond,
         lhover, lPressed, lBorder,
-        lbackground
+        lbackground,
+        ltextTheme
     };
 
     if (!nightTheme)

@@ -5,7 +5,7 @@
 Line::Line(ColorScheme scheme)
     : _scheme(scheme)
 {
-    _mainColor = Qt::white;
+    _mainColor = scheme.getThemeColor()[4];
     _bounds = QRectF();
 }
 
@@ -60,7 +60,7 @@ void Line::paint(QPainter* painter,
     painter->setRenderHint(QPainter::Antialiasing);
 
     for (int i = 0; i < _lines.size(); i++) {
-        QPen pen(_colors[i], 2);
+        QPen pen(_colors[i], 1);
         painter->setPen(pen);
         painter->drawLine(_lines[i].first, _lines[i].second);
     }

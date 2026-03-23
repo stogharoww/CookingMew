@@ -5,7 +5,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    Mew w;
-    w.show();
+    Mew meow;
+    meow.meow();
     return a.exec();
 }

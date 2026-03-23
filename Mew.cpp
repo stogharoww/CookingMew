@@ -7,31 +7,46 @@
 
 
 
-
 Mew::Mew() {
-    QGraphicsScene *scene = new QGraphicsScene(this);
+    scene = new QGraphicsScene(this);
     setScene(scene);
-    showMaximized();
 
     scheme = new ColorScheme();
-
-    QSize size = viewport()->size();
-    qreal width = size.width();
-    qreal height = size.height();
-
-    setSceneRect(0, 0, width, height);
-    ButtonMew *mew = new ButtonMew(*scheme);
-    mew->setPos(-400, 400);
-    QString text = "text";
-    //mew->setColorScheme(colorScheme->getThemeColor());
-    mew->set_text(text);
-    //mew->change_main_color();
-    scene->addItem(mew);
-    QColor backgroundColor = scheme->getThemeColor()[5];
-    scene->setBackgroundBrush(backgroundColor);
-
-    HomePage *page1 = new HomePage(scheme, scene->sceneRect());
-    scene->addItem(page1);
-    page1->create_left_pannel();
+    //scheme->changeTheme();
+    display_home_page();
+    showMaximized();
 
 }
+
+void Mew::meow()
+{
+    show();
+}
+
+void Mew::display_home_page()
+{
+    ButtonMew *mew = new ButtonMew(*scheme);
+    mew->setPos(100, 100);
+    QString text = "text";
+    mew->set_text(text);
+    scene->addItem(mew);
+
+    scene->setBackgroundBrush(scheme->getThemeColor()[5]);
+
+    page1 = new HomePage(scheme, QRectF(0,0,100,100));
+    scene->addItem(page1);
+}
+
+void Mew::resizeEvent(QResizeEvent* event)
+{
+    QGraphicsView::resizeEvent(event);
+
+    QSize size = event->size();
+
+    scene->setSceneRect(0, 0, size.width(), size.height());
+
+    if (page1)
+        page1->resize(size.width(), size.height());
+
+}
+
