@@ -1,46 +1,37 @@
 #include "Page.h"
+#include <QPen>
 
-
-
-Page::Page(ColorScheme scheme, QRectF rect)
+Page::Page(ColorScheme& scheme, QRectF rect)
     : scheme(scheme),
     rect(rect)
 {
     width = rect.width();
     height = rect.height();
-    //create_left_pannel();
-    //create_central_panel();
-    //create_right_panel();
-    setHandlesChildEvents(true);
-
-
 }
 
 void Page::create_left_pannel()
 {
+    // Линия
     Line* lines = new Line(scheme);
-    QPointF position(0, 0);
-    QPointF pFrom;
-    QPointF pTo;
     lines->addLine(QPointF(width / 5, 0), QPointF(width / 5, height));
-    lines->setPos(position);
+    lines->setParentItem(this);
+
+    // Панель
     QRectF leftRect(QPointF(0, 0), QPointF(width / 5, height));
-    QGraphicsItem *leftPannelRect = new QGraphicsRectItem(leftRect, this);
-    button = new ButtonMew(scheme, leftPannelRect);
+
+    QGraphicsRectItem *leftPannelRect = new QGraphicsRectItem(leftRect, this);
+    leftPannelRect->setAcceptedMouseButtons(Qt::NoButton);
+    leftPannelRect->setPen(QPen(Qt::NoPen));
 
 
+    // Кнопка
+    button = new ButtonMew(scheme);
     QString text = "text";
     button->set_text(text);
     button->setPos(leftRect.width() / 3.25, leftRect.height() / 2);
-    button->setZValue(100);
-
-
-    addToGroup(button);
-
-
-    addToGroup(lines);
+    button->setZValue(999);
+    button->setParentItem(this);
 }
-
 
 void Page::resize(int width, int height)
 {
@@ -48,24 +39,21 @@ void Page::resize(int width, int height)
     this->height = height;
     rect = QRectF(0, 0, width, height);
 
+    // Удаляем ВСЕ дочерние элементы
     auto items = childItems();
-    for (auto* item : items) {
-        removeFromGroup(item);
+    for (auto* item : items)
         delete item;
-    }
+
     update_pages();
 }
+
+// void Page::update_color_scheme(ColorScheme &new_scheme)
+// {
+//     scheme = new_scheme;
+//     update();
+// }
 
 void Page::update_pages()
 {
     create_left_pannel();
 }
-
-QRectF Page::boundingRect() const
-{
-    return rect;
-}
-
-
-
-

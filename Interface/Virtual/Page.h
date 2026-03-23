@@ -1,38 +1,33 @@
 #pragma once
-#include <QColor>
+#include <QGraphicsObject>
 #include "../ColorScheme.h"
 #include "../Items/IngridientsList.h"
 #include "../Virtual/Button.h"
 #include "../Interactive/ButtonMew.h"
-#include <QVector>
-#include <QString>
-#include <QGraphicsItemGroup>
-#include <QGraphicsItem>
 #include "../Items/Line.h"
-#include <QRectF>
 
-
-
-class Page: public QGraphicsItemGroup
+class Page : public QGraphicsObject
 {
-public:
-    Page(ColorScheme scheme, QRectF rect);
+    Q_OBJECT
 
+public:
+    Page(ColorScheme& scheme, QRectF rect);
 
     virtual void create_left_pannel();
     virtual void resize(int width, int height);
+
+    QRectF boundingRect() const override { return rect; }
+    void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override {}
+    //virtual void update_color_scheme(ColorScheme &new_scheme);
+
 protected:
-    //virtual void create_central_panel();
-    //virtual void create_right_panel();
     virtual void update_pages();
-    virtual QRectF boundingRect() const override;
-    ColorScheme scheme;
+
+    ColorScheme& scheme;
     QRectF rect;
     qreal width;
     qreal height;
+
     ButtonMew *button;
     ButtonMew *homeBtm;
-
-
-
 };

@@ -16,7 +16,7 @@
 class HomePage : public Page
 {
 public:
-    HomePage(ColorScheme scheme, QRectF rect);
+    HomePage(ColorScheme &scheme, QRectF rect);
 
 
 private:

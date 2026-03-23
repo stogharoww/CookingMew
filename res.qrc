@@ -1,1 +1,5 @@
-<RCC/>
+<RCC>
+    <qresource prefix="/fonts"/>
+    <qresource prefix="/icons"/>
+    <qresource prefix="/photos"/>
+</RCC>

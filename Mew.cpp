@@ -12,7 +12,8 @@ Mew::Mew() {
     setScene(scene);
 
     scheme = new ColorScheme();
-    //scheme->changeTheme();
+    scheme->changeTheme();
+
     display_home_page();
     showMaximized();
 
@@ -25,15 +26,16 @@ void Mew::meow()
 
 void Mew::display_home_page()
 {
-    ButtonMew *mew = new ButtonMew(*scheme);
-    mew->setPos(100, 100);
-    QString text = "text";
-    mew->set_text(text);
-    scene->addItem(mew);
+    // ButtonMew *mew = new ButtonMew(*scheme);
+    // mew->setPos(100, 100);
+    // QString text = "text";
+    // mew->set_text(text);
+    // scene->addItem(mew);
 
     scene->setBackgroundBrush(scheme->getThemeColor()[5]);
 
-    page1 = new HomePage(scheme, QRectF(0,0,100,100));
+    page1 = new HomePage(*scheme, QRectF(0,0,100,100));
+    //page1->update_color_scheme(&scheme);
     scene->addItem(page1);
 }
 
