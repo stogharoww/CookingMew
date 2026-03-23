@@ -102,7 +102,7 @@ void Button::setColorScheme()
 {
     QVector<QColor> colorScheme = scheme.getThemeColor();
     if (colorScheme.size() < 4){
-        qDebug() << "Button::setColorScheme: error: colorScheme must contain at least 4 elements";
+        //qDebug() << "Button::setColorScheme: error: colorScheme must contain at least 4 elements";
         return;
     }
     std::tie(baseColor, secondColor, hoverColor, pressedColor) =
