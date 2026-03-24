@@ -1,5 +1,6 @@
 #include "Page.h"
 #include <QPen>
+#include <QTimer>
 
 Page::Page(ColorScheme& scheme, QRectF rect)
     : scheme(scheme),
@@ -83,11 +84,12 @@ void Page::resize(int width, int height)
 void Page::update_pages()
 {
     auto items = childItems();
-    for (auto* item : items)
-        delete item;
-    _btms.clear();
-    _btms.resize(7);
-    create_left_pannel();
+    QTimer::singleShot(0, this, [this, items]() {
+        for (auto* item : items)
+            delete item;
+        _btms.clear();
+        _btms.resize(7);
+        create_left_pannel();});
 }
 
 void Page::change_current_btm(QString &btmText)
