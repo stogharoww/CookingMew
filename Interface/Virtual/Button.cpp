@@ -22,6 +22,7 @@ void Button::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     currentColor = hoverColor; // или baseColor
     _brush.setColor(currentColor);
+    emit clicked();
     update();
 }
 
@@ -29,7 +30,7 @@ void Button::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void Button::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-    qDebug() << "Button:: hover event";
+    //qDebug() << "Button:: hover event";
     currentColor = hoverColor;
     _brush.setColor(currentColor);
     update();
@@ -48,11 +49,11 @@ void Button::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 void Button::change_main_color()
 {
     // Меняем местами основной и дополнительный цвет
-    std::swap(baseColor, secondColor);
+    baseColor = backgroundColor;
 
     // Пересчитываем производные цвета
-    hoverColor   = baseColor.lighter(120);
-    pressedColor = baseColor.darker(120);
+    hoverColor   = baseColor.lighter(175);
+    pressedColor = baseColor;
 
     // Текущий цвет обновляем
     currentColor = baseColor;
@@ -68,6 +69,11 @@ void Button::updateScheme(ColorScheme &colorScheme)
 {
     scheme = colorScheme;
     setColorScheme();
+}
+
+void Button::set_text_bold()
+{
+    font.setBold(true);
 }
 
 
@@ -105,8 +111,8 @@ void Button::setColorScheme()
         //qDebug() << "Button::setColorScheme: error: colorScheme must contain at least 4 elements";
         return;
     }
-    std::tie(baseColor, secondColor, hoverColor, pressedColor) =
-        std::make_tuple(colorScheme[0], colorScheme[1], colorScheme[2], colorScheme[3]);
+    std::tie(baseColor, secondColor, hoverColor, pressedColor, backgroundColor) =
+        std::make_tuple(colorScheme[0], colorScheme[1], colorScheme[2], colorScheme[3], colorScheme[5]);
 
     currentColor = baseColor;
     _brush.setColor(currentColor);

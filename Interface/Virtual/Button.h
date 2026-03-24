@@ -26,6 +26,7 @@ public:
         font = QFont(arial, 18);
 
 
+
     }
     virtual ~Button() = default;
 
@@ -43,6 +44,7 @@ public:
     virtual void change_main_color();
 
     virtual void updateScheme(ColorScheme& colorScheme);
+    virtual void set_text_bold();
 
 
 signals:
@@ -83,6 +85,8 @@ protected:
     QColor hoverColor;     // цвет при наведении
     QColor pressedColor;   // цвет при нажатии
     QColor currentColor;   // текущий цвет кнопки
+
+    QColor backgroundColor;
 
     int id = QFontDatabase::addApplicationFont(":/fonts/resourses/fonts/ARIAL.TTF");
     QString arial = QFontDatabase::applicationFontFamilies(id).at(0);

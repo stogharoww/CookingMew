@@ -5,12 +5,18 @@ Page::Page(ColorScheme& scheme, QRectF rect)
     : scheme(scheme),
     rect(rect)
 {
+    _btms.resize(7);
     width = rect.width();
     height = rect.height();
-    _btms = {
-        homeBtm, exploreBtm, bookmarksBtm, ingredientsBtm,
-        myGroupsBtm, moreBtm, postBtm
+    // _btms = {
+    //     homeBtm, exploreBtm, bookmarksBtm, ingredientsBtm,
+    //     myGroupsBtm, moreBtm, postBtm
+    // };
+    textForBtm = {
+        "Home", "Explore", "Bookmarks", "Ingredients",
+        "My groups", "More", "Post"
     };
+    currentBtm = textForBtm[0];
 }
 
 void Page::create_left_pannel()
@@ -30,15 +36,20 @@ void Page::create_left_pannel()
     qreal yPosBtm = leftRect.height();
     // Кнопки
     int count = 0;
-    QVector<QString> textForBtm = {
-        "Home", "Explore", "Bookmarks", "Ingredients",
-        "My groups", "More", "Post"
-    };
-    for (auto& btm : _btms){
-        btm = new ButtonMew(scheme);
-        btm->setPos(leftRect.width() / 3.25, yPosBtm -
+
+    for (int i = 0; i < _btms.size(); i++) {
+        _btms[i] = new ButtonMew(scheme);
+        auto& btm = _btms[i];
+        btm->setPos(leftRect.width() / 5, yPosBtm -
                             (yPosBtm - btm->boundingRect().height() - 65 * count - yPosBtm / 5));
         btm->set_text(textForBtm[count]);
+        if (count != 6)
+            btm->change_main_color();
+        if (count == 6)
+            btm->set_text_bold();
+        if (textForBtm[count] == currentBtm){
+            btm->set_text_bold();
+        }
         count++;
         btm->setParentItem(this);
     }
@@ -49,6 +60,7 @@ void Page::create_left_pannel()
     // button->setPos(leftRect.width() / 3.25, leftRect.height() / 5);
     // button->setZValue(999);
     // button->setParentItem(this);
+    connectBtms();
 }
 
 void Page::resize(int width, int height)
@@ -58,9 +70,6 @@ void Page::resize(int width, int height)
     rect = QRectF(0, 0, width, height);
 
     // Удаляем ВСЕ дочерние элементы
-    auto items = childItems();
-    for (auto* item : items)
-        delete item;
 
     update_pages();
 }
@@ -73,5 +82,86 @@ void Page::resize(int width, int height)
 
 void Page::update_pages()
 {
+    auto items = childItems();
+    for (auto* item : items)
+        delete item;
+    _btms.clear();
+    _btms.resize(7);
     create_left_pannel();
+}
+
+void Page::change_current_btm(QString &btmText)
+{
+    currentBtm = btmText;
+    update_pages();
+
+}
+
+
+
+void Page::btmHomeClicked()
+{
+    qDebug() << "clicked";
+    change_current_btm(textForBtm[0]);
+}
+
+void Page::btmExploreClicked()
+{
+    change_current_btm(textForBtm[1]);
+}
+
+void Page::btmBookmarksClicked()
+{
+    change_current_btm(textForBtm[2]);
+}
+
+void Page::btmIngredientsClicked()
+{
+    change_current_btm(textForBtm[3]);
+}
+
+void Page::btmMyGroupsClicked()
+{
+    change_current_btm(textForBtm[4]);
+}
+
+void Page::btmMoreClicked()
+{
+    change_current_btm(textForBtm[5]);
+}
+
+void Page::btmPostClicked()
+{
+    change_current_btm(textForBtm[6]);
+}
+
+void Page::connectBtms()
+{
+    int cout = 0;
+    for (auto& btm : _btms){
+        switch (cout){
+        case 0:
+            connect(btm, &Button::clicked, this, &Page::btmHomeClicked);
+            break;
+        case 1:
+            connect(btm, &Button::clicked, this, &Page::btmExploreClicked);
+            break;
+        case 2:
+            connect(btm, &Button::clicked, this, &Page::btmBookmarksClicked);
+            break;
+        case 3:
+            connect(btm, &Button::clicked, this, &Page::btmIngredientsClicked);
+            break;
+        case 4:
+            connect(btm, &Button::clicked, this, &Page::btmMyGroupsClicked);
+            break;
+        case 5:
+            connect(btm, &Button::clicked, this, &Page::btmMoreClicked);
+            break;
+        case 6:
+            connect(btm, &Button::clicked, this, &Page::btmPostClicked);
+            break;
+        }
+        cout++;
+    }
 }
