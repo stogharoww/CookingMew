@@ -28,15 +28,15 @@ private:
     QColor background = QColor("#1a0000"); // фон
     QColor textTheme = QColor("#F5F5F5"); // цвет текста вне кнопок (если надо)
 
+    // Bright Pastel Pink Theme (high contrast)
+    QColor lightBase      = QColor("#FF6EC7");   // яркая пастельно‑розовая кнопка (не кислотная)
+    QColor lightSecond    = QColor("#000000");   // чёрный текст — максимальная читаемость
+    QColor lhover         = QColor("#FF5ABF");   // hover — чуть темнее и насыщеннее
+    QColor lPressed       = QColor("#E048A8");   // pressed — глубокий розовый
+    QColor lBorder        = QColor("#FF9BDD");   // яркая пастельная граница
+    QColor lbackground    = QColor("#FFD6E9");   // насыщенный пастельно‑розовый фон
+    QColor ltextTheme     = QColor("#000000");   // чёрный текст вне кнопок
 
-    //light theme
-    QColor lightBase = QColor("#B00020"); // основной цвет кнопки
-    QColor lightSecond = QColor("#1a0000"); // текст
-    QColor lhover = QColor("#C62828"); // мышка на кнопке
-    QColor lPressed = QColor("#8E0000");  // нажал на кнопку
-    QColor lBorder = QColor("#4d0000"); // цвет линии
-    QColor lbackground = QColor("#ff9baa"); // Лососевый Крайола, фон
-    QColor ltextTheme = QColor("#000000"); // цвет текста вне кнопок (если надо)
 
     bool nightTheme = true;
 

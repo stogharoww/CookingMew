@@ -12,7 +12,7 @@ Mew::Mew() {
     setScene(scene);
 
     scheme = new ColorScheme();
-    //scheme->changeTheme();
+    scheme->changeTheme();
 
     display_home_page();
     showMaximized();
