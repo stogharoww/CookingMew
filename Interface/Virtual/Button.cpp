@@ -53,10 +53,10 @@ void Button::change_main_color()
 
     // Пересчитываем производные цвета
     hoverColor   = baseColor.lighter(175);
-    pressedColor = baseColor;
+    pressedColor = baseColor.darker(125);
 
     // Текущий цвет обновляем
-    currentColor = baseColor;
+    currentColor = backgroundColor;
 
     // Обновляем кисти
     _brush.setColor(currentColor);

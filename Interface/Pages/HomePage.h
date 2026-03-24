@@ -20,6 +20,6 @@ public:
 
 
 private:
-
+    void create_main_pannel() override;
 };
 

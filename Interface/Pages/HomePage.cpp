@@ -6,3 +6,8 @@ HomePage::HomePage(ColorScheme& scheme, QRectF rect)
 {
 
 }
+
+void HomePage::create_main_pannel()
+{
+
+}

@@ -13,7 +13,6 @@ class Page : public QGraphicsObject
 public:
     Page(ColorScheme& scheme, QRectF rect);
 
-    virtual void create_left_pannel();
     virtual void resize(int width, int height);
 
     QRectF boundingRect() const override { return rect; }
@@ -21,6 +20,12 @@ public:
     //virtual void update_color_scheme(ColorScheme &new_scheme);
 
 protected:
+
+    virtual void create_left_pannel();
+    virtual void create_main_pannel() = 0;
+    virtual void create_right_pannel() {};
+
+
     virtual void update_pages();
     virtual void change_current_btm(QString &btmText);
     virtual void btmHomeClicked();

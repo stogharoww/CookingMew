@@ -25,8 +25,10 @@ private:
     QColor hover = QColor("#990000"); // мышка на кнопке
     QColor pressed = QColor("#660000"); // нажал на кнопку
     QColor border = QColor("#E57373"); // цвет линии
-    QColor background = QColor("#1a0000"); // фон
+    QColor background = QColor("#1f1f1f"); // фон
     QColor textTheme = QColor("#F5F5F5"); // цвет текста вне кнопок (если надо)
+
+    QColor additionalBaseColor = QColor("#3cc8f8"); // дополнительный выделяющийся цвет приложения
 
     // Bright Pastel Pink Theme (high contrast)
     QColor lightBase      = QColor("#FF6EC7");   // яркая пастельно‑розовая кнопка (не кислотная)
@@ -36,6 +38,8 @@ private:
     QColor lBorder        = QColor("#FF9BDD");   // яркая пастельная граница
     QColor lbackground    = QColor("#FFD6E9");   // насыщенный пастельно‑розовый фон
     QColor ltextTheme     = QColor("#000000");   // чёрный текст вне кнопок
+
+    QColor ladditionalBaseColor = QColor("#3cc8f8"); // дополнительный выделяющийся цвет приложения
 
 
     bool nightTheme = true;
