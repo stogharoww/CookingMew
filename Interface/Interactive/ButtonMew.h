@@ -38,6 +38,11 @@ private:
     QGraphicsPixmapItem *_pixmap;
     QSize _buttonSize;
     QString _text = "";
+    QRect rect;
+    QPoint firstEllipse;
+    QPoint secondEllipse;
+    QPoint rectPos;
+    qreal textSize = 1;
 
 
 

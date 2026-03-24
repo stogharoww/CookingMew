@@ -30,4 +30,11 @@ protected:
 
     ButtonMew *button;
     ButtonMew *homeBtm;
+    ButtonMew *exploreBtm;
+    ButtonMew *bookmarksBtm;
+    ButtonMew *ingredientsBtm;
+    ButtonMew *myGroupsBtm;
+    ButtonMew *moreBtm;
+    ButtonMew *postBtm;
+    QVector<ButtonMew*> _btms;
 };

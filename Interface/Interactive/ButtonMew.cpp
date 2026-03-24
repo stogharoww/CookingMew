@@ -3,6 +3,8 @@
 #include <QPainter>
 #include <QStylePainter>
 #include <QLinearGradient>
+#include <cmath>
+#include <QFontMetrics>
 
 ButtonMew::ButtonMew(ColorScheme& scheme, QGraphicsItem* parent)
     : Button(scheme, parent)
@@ -13,6 +15,13 @@ ButtonMew::ButtonMew(ColorScheme& scheme, QGraphicsItem* parent)
     _brush.setColor(currentColor);
     _brush.setStyle(Qt::SolidPattern);
     setBrush(_brush);
+    firstEllipse = QPoint(10, 10);
+    secondEllipse = QPoint(110, 10);
+    rectPos = QPoint(10, -10);
+    QSize size(100, 40);
+    rect = QRect(rectPos, size);
+    QRectF b_rect(-10, -10, rect.width() + 40, rect.height());
+    setBoundingRect(b_rect);
 
 
 }
@@ -32,22 +41,44 @@ void ButtonMew::set_pixmap(QString &path)
 
 void ButtonMew::set_text(QString &text)
 {
-
     _text = text;
+
+    QFontMetrics fm(font);
+    int textWidth = fm.horizontalAdvance(_text);
+
+    int ellipseR = 20;      // радиус эллипсов
+    int padding = 10;       // отступ слева
+    int height = 40;        // высота кнопки
+
+    // Новая ширина кнопки
+    int totalWidth = padding + ellipseR*2 + textWidth + ellipseR*2;
+
+    // boundingRect растёт только вправо
+    QRectF brrect(0, 0, totalWidth, height);
+    setBoundingRect(brrect);
+
+    // Левый эллипс — всегда на одном месте
+    firstEllipse = QPoint(padding + ellipseR, height / 2);
+
+    // Прямоугольник — сразу после левого эллипса
+    rect = QRect(
+        padding + ellipseR,
+        0,
+        textWidth + ellipseR,
+        height
+        );
+
+    // Правый эллипс — сразу после прямоугольника
+    secondEllipse = QPoint(rect.right(), height / 2);
 
     update();
 }
 
+
+
 void ButtonMew::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    // base forms
-    QPoint firstEllipse(10, 10);
-    QPoint secondEllipse(110, 10);
-    QPoint rectPos(10, -10);
-    QSize size(100, 40);
-    QRect rect(rectPos, size);
-    QRectF b_rect(-10, -10, rect.width() + 40, rect.height());
-    setBoundingRect(b_rect);
+
 
 
     painter->setRenderHint(QPainter::Antialiasing, true);
@@ -76,7 +107,8 @@ void ButtonMew::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidg
 
     painter->setPen(second_pen);
     painter->setBrush(Qt::NoBrush);
-    painter->drawText(rect.width() / 2, rect.height() / 3, _text);
+    QRectF needRect = boundingRect();
+    painter->drawText(rect, Qt::AlignCenter, _text);
 
 
 
