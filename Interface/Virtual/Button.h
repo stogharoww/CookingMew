@@ -34,7 +34,7 @@ public:
     /// \brief set_pixmap: Рисует картинку внутри кнопки
     /// \param path: путь до картинки
     ///
-    virtual void set_pixmap(QString& path) = 0;
+    virtual void set_pixmap(QString& path);
 
 
     virtual QRectF boundingRect() const override;
@@ -63,7 +63,7 @@ protected:
     ///
     /// \brief set_form: устанавливает форму кнопки
     ///
-    virtual void set_form() = 0;
+    virtual void set_form() {};
 
     virtual void setBrush(QBrush &brush);
     virtual void setSecondBrush(QBrush &brush);

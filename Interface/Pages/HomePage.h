@@ -19,6 +19,7 @@ public:
     HomePage(ColorScheme &scheme, QRectF rect);
 
 
+
 private:
     void create_main_pannel() override;
 };

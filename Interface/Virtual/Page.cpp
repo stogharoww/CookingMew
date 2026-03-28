@@ -89,7 +89,10 @@ void Page::update_pages()
             delete item;
         _btms.clear();
         _btms.resize(7);
-        create_left_pannel();});
+        create_left_pannel();
+        create_main_pannel();
+        create_right_pannel();
+    });
 }
 
 void Page::change_current_btm(QString &btmText)
