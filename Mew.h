@@ -18,6 +18,7 @@ private:
     HomePage *page1;
     void display_home_page();
     void resizeEvent(QResizeEvent* event);
+    bool firstResizeDone = false;
 
 };
 

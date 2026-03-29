@@ -53,6 +53,8 @@ protected:
     // ButtonMew *postBtm;
     QVector<ButtonMew*> _btms;
 
+    QRectF leftRect;
+
     QString currentBtm;
     QVector<QString> textForBtm;
 

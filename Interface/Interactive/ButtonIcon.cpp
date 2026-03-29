@@ -13,7 +13,7 @@ ButtonIcon::ButtonIcon(ButtonType type, ColorScheme &scheme, QGraphicsItem *pare
     if (mainColor != nullptr)
         mainCol = mainColor;
     if (mainColor == nullptr)
-        mainCol = scheme.getThemeColor()[7];
+        mainCol = scheme.additionalColorGet();
 
     iconAppend();
 }
@@ -86,10 +86,6 @@ void ButtonIcon::paint(QPainter* painter,
 
 }
 
-void ButtonIcon::set_pixmap(QString &path)
-{
-
-}
 
 
 

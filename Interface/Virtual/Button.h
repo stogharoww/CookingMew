@@ -25,8 +25,6 @@ public:
         setColorScheme();
         font = QFont(arial, 18);
 
-
-
     }
     virtual ~Button() = default;
 
@@ -34,7 +32,7 @@ public:
     /// \brief set_pixmap: Рисует картинку внутри кнопки
     /// \param path: путь до картинки
     ///
-    virtual void set_pixmap(QString& path);
+    virtual void set_pixmap(QString& path) {};
 
 
     virtual QRectF boundingRect() const override;
@@ -71,6 +69,7 @@ protected:
     virtual void setBoundingRect(QRectF &rect);
 
     virtual void setColorScheme();
+
 
 
     bool _changed = false;

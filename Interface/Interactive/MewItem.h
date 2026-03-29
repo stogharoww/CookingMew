@@ -15,7 +15,7 @@ class MewItem : public Button
 {
 public:
     MewItem(ColorScheme& scheme, QGraphicsItem* paren = nullptr);
-    void set_text(QString &text) override;
+    void set_text(QString &text);
 
 
 

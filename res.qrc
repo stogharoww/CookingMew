@@ -15,4 +15,7 @@
         <file>resourses/icons/search.svg</file>
     </qresource>
     <qresource prefix="/photos"/>
+    <qresource prefix="/Logo">
+        <file>resourses/logo/Logo.png</file>
+    </qresource>
 </RCC>

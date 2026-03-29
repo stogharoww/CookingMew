@@ -22,13 +22,19 @@ Page::Page(ColorScheme& scheme, QRectF rect)
 
 void Page::create_left_pannel()
 {
+    // Лого
+    QPixmap logoPix(":/Logo/resourses/logo/Logo.png");
+    QPixmap newLogoSize = logoPix.scaled(60, 60, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    QGraphicsPixmapItem *logo = new QGraphicsPixmapItem(newLogoSize);
+    logo->setParentItem(this);
+    logo->setPos(25, 25);
     // Линия
     Line* lines = new Line(scheme);
     lines->addLine(QPointF(width / 5, 0), QPointF(width / 5, height));
     lines->setParentItem(this);
-
     // Панель
-    QRectF leftRect(QPointF(0, 0), QPointF(width / 5, height));
+    leftRect = QRectF(QPointF(0, 0), QPointF(width / 5, height));
 
     QGraphicsRectItem *leftPannelRect = new QGraphicsRectItem(leftRect, this);
     leftPannelRect->setAcceptedMouseButtons(Qt::NoButton);

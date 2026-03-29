@@ -38,7 +38,6 @@ private:
     void iconAppend();
     void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override;
 
-    void set_pixmap(QString& path) override;
     //void set_text() {} override;
 
 };

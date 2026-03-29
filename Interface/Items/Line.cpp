@@ -5,7 +5,7 @@
 Line::Line(ColorScheme scheme)
     : _scheme(scheme)
 {
-    _mainColor = scheme.getThemeColor()[4];
+    _mainColor = scheme.borderGet();
     _bounds = QRectF();
 }
 

@@ -12,8 +12,17 @@ public:
     QVector<QColor> getThemeColor(bool nightTheme);
     void changeTheme();
 
-    bool getColorScheme();
+    bool getBoolColorScheme();
     void setColorScheme(bool night = true);
+
+    QColor baseColorGet();
+    QColor secondColorGet();
+    QColor hoverGet();
+    QColor pressedGet();
+    QColor borderGet();
+    QColor backgroundGet();
+    QColor textColorGet();
+    QColor additionalColorGet();
 
 
 
@@ -40,6 +49,10 @@ private:
     QColor ltextTheme     = QColor("#000000");   // чёрный текст вне кнопок
 
     QColor ladditionalBaseColor = QColor("#3cc8f8"); // дополнительный выделяющийся цвет приложения
+
+
+
+
 
 
     bool nightTheme = true;
