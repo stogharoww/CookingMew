@@ -18,4 +18,5 @@
     <qresource prefix="/Logo">
         <file>resourses/logo/Logo.png</file>
     </qresource>
+    <qresource prefix="/databases"/>
 </RCC>

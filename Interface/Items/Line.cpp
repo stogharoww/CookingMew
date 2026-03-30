@@ -22,7 +22,32 @@ void Line::addLine(QPointF from, QPointF to, QColor color)
     _colors.append(color);
 
     updateBoundingRect();
+    update();
 }
+
+void Line::changeColor(QColor color, int w)
+{
+    _mainColor = color;
+    _w = w;
+    update();
+}
+
+
+void Line::moveTo(QPointF from, QPointF to)
+{
+    prepareGeometryChange();
+    if (_lines.isEmpty()) {
+        _lines.append({from, to});
+        _colors.append(_mainColor);
+    } else {
+        _lines[0] = {from, to};
+    }
+    updateBoundingRect();
+    update();
+}
+
+
+
 
 void Line::updateBoundingRect()
 {
@@ -60,7 +85,7 @@ void Line::paint(QPainter* painter,
     painter->setRenderHint(QPainter::Antialiasing);
 
     for (int i = 0; i < _lines.size(); i++) {
-        QPen pen(_colors[i], 1);
+        QPen pen(_colors[i], _w);
         painter->setPen(pen);
         painter->drawLine(_lines[i].first, _lines[i].second);
     }

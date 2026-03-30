@@ -20,7 +20,7 @@ Mew::Mew() {
     QRect screen = QApplication::primaryScreen()->availableGeometry();
     setGeometry(screen);
     setFixedSize(screen.size());
-
+    showMaximized();
 
 }
 

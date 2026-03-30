@@ -22,6 +22,7 @@ set(PROJECT_SOURCES
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
     qt_add_executable(CookingMew
         MANUAL_FINALIZATION
@@ -50,6 +51,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Interface/Interactive/MewItem.h Interface/Interactive/MewItem.cpp
         Interface/Interactive/ButtonIcon.h Interface/Interactive/ButtonIcon.cpp
         Interface/Interactive/SquareTextBtm.h Interface/Interactive/SquareTextBtm.cpp
+        Interface/Interactive/MewScrollArea.h Interface/Interactive/MewScrollArea.cpp
+        Interface/Items/FollowLent.h Interface/Items/FollowLent.cpp
 
     )
 # Define target properties for Android with Qt 6 as:
@@ -77,6 +80,7 @@ target_link_libraries(CookingMew PRIVATE
     Qt${QT_VERSION_MAJOR}::Svg
     Qt${QT_VERSION_MAJOR}::Core
 )
+target_link_libraries(CookingMew PRIVATE Qt6::Core)
 
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

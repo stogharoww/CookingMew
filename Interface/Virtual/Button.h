@@ -42,7 +42,8 @@ public:
     virtual void change_main_color();
 
     virtual void updateScheme(ColorScheme& colorScheme);
-    virtual void set_text_bold();
+    void set_text_bold();
+    void set_not_text_bold();
 
 
 signals:
@@ -91,6 +92,8 @@ protected:
     QString arial = QFontDatabase::applicationFontFamilies(id).at(0);
     QFont font;
 
+
+    bool textBolded = false;
 };
 
 
