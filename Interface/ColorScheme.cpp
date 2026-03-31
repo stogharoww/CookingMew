@@ -17,14 +17,16 @@ QVector<QColor> ColorScheme::getThemeColor()
         baseColor, secondColor,
         hover, pressed, border,
         background,
-        textTheme, additionalBaseColor
+        textTheme, additionalBaseColor,
+        groupTextTheme, titleTextTheme, tagTextTheme
     };
 
     QVector<QColor> colorDayTheme = {
         lightBase, lightSecond,
         lhover, lPressed, lBorder,
         lbackground,
-        ltextTheme, ladditionalBaseColor
+        ltextTheme, ladditionalBaseColor,
+        groupTextTheme, titleTextTheme, tagTextTheme
     };
 
     if (!nightTheme)
@@ -96,6 +98,21 @@ QColor ColorScheme::textColorGet()
 QColor ColorScheme::additionalColorGet()
 {
     return getThemeColor()[7];
+}
+
+QColor ColorScheme::groupColor()
+{
+    return getThemeColor()[8];
+}
+
+QColor ColorScheme::titleColor()
+{
+    return getThemeColor()[9];
+}
+
+QColor ColorScheme::tagColor()
+{
+    return getThemeColor()[10];
 }
 
 

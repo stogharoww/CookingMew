@@ -114,36 +114,43 @@ void Page::btmHomeClicked()
 {
     qDebug() << "clicked";
     change_current_btm(textForBtm[0]);
+    emit goToHome();
 }
 
 void Page::btmExploreClicked()
 {
     change_current_btm(textForBtm[1]);
+    emit goToExplore();
 }
 
 void Page::btmBookmarksClicked()
 {
     change_current_btm(textForBtm[2]);
+    emit goToBookmarks();
 }
 
 void Page::btmIngredientsClicked()
 {
     change_current_btm(textForBtm[3]);
+    emit goToIngredients();
 }
 
 void Page::btmMyGroupsClicked()
 {
     change_current_btm(textForBtm[4]);
+    emit goToMyGroups();
 }
 
 void Page::btmMoreClicked()
 {
     change_current_btm(textForBtm[5]);
+    emit goToMore();
 }
 
 void Page::btmPostClicked()
 {
     change_current_btm(textForBtm[6]);
+    emit openPost();
 }
 
 void Page::connectBtms()

@@ -5,6 +5,7 @@
 #include "../ColorScheme.h"
 #include <QRectF>
 #include <QVector>
+#include <QString>
 
 class FollowLent : public QGraphicsObject
 {
@@ -22,4 +23,6 @@ private:
     QRectF globalRect;
     QRectF _bounds;
     QVector<MewItem*> posts;
+
+
 };

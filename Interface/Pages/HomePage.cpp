@@ -22,6 +22,8 @@ void HomePage::btmForYouClicked()
     followBtm->set_not_text_bold();
     moveLine(forYouBtm);
 
+    forYouScrollArea->setVisible(true);
+
     update();
 }
 
@@ -30,10 +32,17 @@ void HomePage::btmFollowClicked()
     followBtm->set_text_bold();
     forYouBtm->set_not_text_bold();
     moveLine(followBtm);
+    forYouScrollArea->setVisible(false);
+
     update();
 }
 
 void HomePage::btmHeartClicked()
+{
+
+}
+
+void HomePage::postClicked()
 {
 
 }
@@ -47,10 +56,10 @@ void HomePage::create_main_pannel()
     mainRectItem->setParentItem(this);
     mainRectItem->setPen(QPen(scheme.borderGet(), 1));
 
-    //сердечко
-    ButtonIcon *icon = new ButtonIcon(ButtonType::Like, scheme, mainRectItem, QColor(Qt::red));
-    icon->setParentItem(mainRectItem);
-    icon->setPos(100, 100);
+    // //сердечко
+    // ButtonIcon *icon = new ButtonIcon(ButtonType::Like, scheme, mainRectItem, QColor(Qt::red));
+    // icon->setParentItem(mainRectItem);
+    // icon->setPos(100, 100);
 
     //верхняя панель:
     forYouBtm = new SquareTextBtm(scheme, mainRectItem);
@@ -76,7 +85,7 @@ void HomePage::create_main_pannel()
     moveLine(forYouBtm);
 
     _btms = {
-        icon,
+        //icon,
         forYouBtm, followBtm
     };
     connecting();
@@ -87,8 +96,10 @@ void HomePage::create_main_pannel()
     QRectF scrollRect = QRectF(scrlATOPLEFT, scrlBOTTOMRIGT);
 
 
+
+
     forYouScrollArea = new MewScrollArea(scrollRect, mainRectItem);
-    FollowLent *lent = new FollowLent(scheme, mainRect);
+    FollowLent *lent = new FollowLent(scheme, scrollRect);
     forYouScrollArea->setContent(lent);
 
 
@@ -111,12 +122,9 @@ void HomePage::connecting()
     for (auto &btm : _btms){
         switch (count){
         case 0:
-            connect(btm, &Button::clicked, this, &HomePage::btmHeartClicked);
-            break;
-        case 1:
             connect(btm, &Button::clicked, this, &HomePage::btmForYouClicked);
             break;
-        case 2:
+        case 1:
             connect(btm, &Button::clicked, this, &HomePage::btmFollowClicked);
             break;
         }

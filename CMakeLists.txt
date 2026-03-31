@@ -53,6 +53,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
         Interface/Interactive/SquareTextBtm.h Interface/Interactive/SquareTextBtm.cpp
         Interface/Interactive/MewScrollArea.h Interface/Interactive/MewScrollArea.cpp
         Interface/Items/FollowLent.h Interface/Items/FollowLent.cpp
+        Interface/Pages/RecepiePage.h Interface/Pages/RecepiePage.cpp
 
     )
 # Define target properties for Android with Qt 6 as:

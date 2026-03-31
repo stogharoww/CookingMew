@@ -19,6 +19,15 @@ public:
     void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override {}
     //virtual void update_color_scheme(ColorScheme &new_scheme);
 
+signals:
+    void goToHome();
+    void goToExplore();
+    void goToBookmarks();
+    void goToIngredients();
+    void goToMyGroups();
+    void goToMore();
+    void openPost();
+
 protected:
 
     virtual void create_left_pannel();

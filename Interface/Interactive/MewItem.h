@@ -13,27 +13,31 @@
 #include <QRectF>
 #include <QPainter>
 #include <QPen>
+#include <QGraphicsTextItem>
 
 class MewItem : public Button
 {
 public:
     MewItem(ColorScheme& scheme, QRectF &globalRect, QGraphicsItem* paren = nullptr);
-    void set_text(QString &text);
     void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override;
     QRectF boundingRect() const override;
 
 
 
 private:
-    QColor _textColor;
-    QColor _titleColor;
-    QColor _textGroupsColor;
-    QColor _titleOptionalColor;
-    QColor _blueActent;
+    QVector<QColor> colors;
+
+    ColorScheme _scheme;
     QPixmap _avatareGroup;
     QGraphicsRectItem *mainRectItem;
     QRectF mainRect;
 
+
+    QVector<QString> content;
+
+
+
+    void set_content(QString &title, QString &group, QString &recepie, QString &ingredients, QString &tag);
 
 };
 

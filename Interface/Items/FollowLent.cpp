@@ -8,7 +8,7 @@ FollowLent::FollowLent(ColorScheme& scheme, QRectF rect, QGraphicsItem* parent)
 {
     const int count = 3;
     qreal spacing = 4;
-    qreal y = 0;
+    qreal y = globalRect.top();
 
     for (int i = 0; i < count; ++i) {
         MewItem* post = new MewItem(_scheme, globalRect, this);
@@ -19,6 +19,8 @@ FollowLent::FollowLent(ColorScheme& scheme, QRectF rect, QGraphicsItem* parent)
         posts.append(post);
 
         y += postHeight + spacing;
+
+
     }
 
     // Высота ленты = count * globalRect.height()
@@ -40,7 +42,7 @@ void FollowLent::addPost(MewItem* post)
     if (!post)
         return;
 
-    const qreal spacing = 2; // отступы
+    const qreal spacing = 4; // отступы
 
     qreal y = globalRect.top();
     if (!posts.isEmpty()) {

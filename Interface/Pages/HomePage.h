@@ -25,6 +25,10 @@ public slots:
     void btmForYouClicked();
     void btmFollowClicked();
     void btmHeartClicked();
+    void postClicked();
+
+signals:
+    void goToPageRecepie();
 
 private:
     void create_main_pannel() override;
