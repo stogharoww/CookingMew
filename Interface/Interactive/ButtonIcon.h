@@ -7,6 +7,7 @@
 #include <QGraphicsTextItem>
 #include <QGraphicsPixmapItem>
 #include <QVector>
+#include <QColor>
 
 enum class ButtonType {
     Like,
@@ -24,6 +25,10 @@ public:
                QColor mainColor = nullptr, QGraphicsItem* paren = nullptr);
 
 private:
+    QColor mainCol;
+    QVector<QColor>  colors;
+    ButtonType btmType;
+
 
 };
 
