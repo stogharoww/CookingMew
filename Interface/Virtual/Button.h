@@ -25,8 +25,6 @@ public:
         setColorScheme();
         font = QFont(arial, 18);
 
-
-
     }
     virtual ~Button() = default;
 
@@ -34,7 +32,7 @@ public:
     /// \brief set_pixmap: Рисует картинку внутри кнопки
     /// \param path: путь до картинки
     ///
-    virtual void set_pixmap(QString& path) = 0;
+    virtual void set_pixmap(QString& path) {};
 
 
     virtual QRectF boundingRect() const override;
@@ -44,7 +42,8 @@ public:
     virtual void change_main_color();
 
     virtual void updateScheme(ColorScheme& colorScheme);
-    virtual void set_text_bold();
+    void set_text_bold();
+    void set_not_text_bold();
 
 
 signals:
@@ -63,7 +62,7 @@ protected:
     ///
     /// \brief set_form: устанавливает форму кнопки
     ///
-    virtual void set_form() = 0;
+    virtual void set_form() {};
 
     virtual void setBrush(QBrush &brush);
     virtual void setSecondBrush(QBrush &brush);
@@ -71,6 +70,7 @@ protected:
     virtual void setBoundingRect(QRectF &rect);
 
     virtual void setColorScheme();
+
 
 
     bool _changed = false;
@@ -92,6 +92,8 @@ protected:
     QString arial = QFontDatabase::applicationFontFamilies(id).at(0);
     QFont font;
 
+
+    bool textBolded = false;
 };
 
 

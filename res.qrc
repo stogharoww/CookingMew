@@ -2,6 +2,21 @@
     <qresource prefix="/fonts">
         <file>resourses/fonts/ARIAL.TTF</file>
     </qresource>
-    <qresource prefix="/icons"/>
+    <qresource prefix="/icons">
+        <file>resourses/icons/bookmark.svg</file>
+        <file>resourses/icons/comment.svg</file>
+        <file>resourses/icons/expand.svg</file>
+        <file>resourses/icons/heart.svg</file>
+        <file>resourses/icons/plus.svg</file>
+        <file>resourses/icons/book.svg</file>
+        <file>resourses/icons/carrot.svg</file>
+        <file>resourses/icons/home.svg</file>
+        <file>resourses/icons/homeFulled.svg</file>
+        <file>resourses/icons/search.svg</file>
+    </qresource>
     <qresource prefix="/photos"/>
+    <qresource prefix="/Logo">
+        <file>resourses/logo/Logo.png</file>
+    </qresource>
+    <qresource prefix="/databases"/>
 </RCC>

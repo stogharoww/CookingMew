@@ -22,13 +22,19 @@ Page::Page(ColorScheme& scheme, QRectF rect)
 
 void Page::create_left_pannel()
 {
+    // Лого
+    QPixmap logoPix(":/Logo/resourses/logo/Logo.png");
+    QPixmap newLogoSize = logoPix.scaled(60, 60, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    QGraphicsPixmapItem *logo = new QGraphicsPixmapItem(newLogoSize);
+    logo->setParentItem(this);
+    logo->setPos(25, 25);
     // Линия
     Line* lines = new Line(scheme);
     lines->addLine(QPointF(width / 5, 0), QPointF(width / 5, height));
     lines->setParentItem(this);
-
     // Панель
-    QRectF leftRect(QPointF(0, 0), QPointF(width / 5, height));
+    leftRect = QRectF(QPointF(0, 0), QPointF(width / 5, height));
 
     QGraphicsRectItem *leftPannelRect = new QGraphicsRectItem(leftRect, this);
     leftPannelRect->setAcceptedMouseButtons(Qt::NoButton);
@@ -89,7 +95,10 @@ void Page::update_pages()
             delete item;
         _btms.clear();
         _btms.resize(7);
-        create_left_pannel();});
+        create_left_pannel();
+        create_main_pannel();
+        create_right_pannel();
+    });
 }
 
 void Page::change_current_btm(QString &btmText)
@@ -105,36 +114,43 @@ void Page::btmHomeClicked()
 {
     qDebug() << "clicked";
     change_current_btm(textForBtm[0]);
+    emit goToHome();
 }
 
 void Page::btmExploreClicked()
 {
     change_current_btm(textForBtm[1]);
+    emit goToExplore();
 }
 
 void Page::btmBookmarksClicked()
 {
     change_current_btm(textForBtm[2]);
+    emit goToBookmarks();
 }
 
 void Page::btmIngredientsClicked()
 {
     change_current_btm(textForBtm[3]);
+    emit goToIngredients();
 }
 
 void Page::btmMyGroupsClicked()
 {
     change_current_btm(textForBtm[4]);
+    emit goToMyGroups();
 }
 
 void Page::btmMoreClicked()
 {
     change_current_btm(textForBtm[5]);
+    emit goToMore();
 }
 
 void Page::btmPostClicked()
 {
     change_current_btm(textForBtm[6]);
+    emit openPost();
 }
 
 void Page::connectBtms()

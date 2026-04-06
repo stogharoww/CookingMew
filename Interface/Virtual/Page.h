@@ -19,6 +19,15 @@ public:
     void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override {}
     //virtual void update_color_scheme(ColorScheme &new_scheme);
 
+signals:
+    void goToHome();
+    void goToExplore();
+    void goToBookmarks();
+    void goToIngredients();
+    void goToMyGroups();
+    void goToMore();
+    void openPost();
+
 protected:
 
     virtual void create_left_pannel();
@@ -52,6 +61,8 @@ protected:
     // ButtonMew *moreBtm;
     // ButtonMew *postBtm;
     QVector<ButtonMew*> _btms;
+
+    QRectF leftRect;
 
     QString currentBtm;
     QVector<QString> textForBtm;

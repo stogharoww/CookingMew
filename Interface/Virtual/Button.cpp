@@ -76,6 +76,13 @@ void Button::set_text_bold()
     font.setBold(true);
 }
 
+void Button::set_not_text_bold()
+{
+    font.setBold(false);
+}
+
+
+
 
 
 
