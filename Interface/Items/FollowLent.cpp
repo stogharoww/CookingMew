@@ -12,7 +12,7 @@ FollowLent::FollowLent(ColorScheme& scheme, QRectF rect, QGraphicsItem* parent)
 {
     //Подключаем к базе данных
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "cookbook_connection");
-    db.setDatabaseName("CookBook(3).db");
+    db.setDatabaseName("CookBook.db");
 
     if(!db.open())
     {
