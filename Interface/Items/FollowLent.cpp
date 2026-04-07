@@ -1,12 +1,31 @@
 #include "FollowLent.h"
 #include <QPainter>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QDebug>
 
 FollowLent::FollowLent(ColorScheme& scheme, QRectF rect, QGraphicsItem* parent)
     : QGraphicsObject(parent),
     _scheme(scheme),
     globalRect(rect)
 {
-    const int count = 3;
+    //Подключаем к базе данных
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "cookbook_connection");
+    db.setDatabaseName("CookBook(3).db");
+
+    if(!db.open())
+    {
+        return;
+    };
+
+    QSqlQuery q(db);
+    if(!q.exec("SELECT id, title FROM recipes"))
+    {
+        return;
+    };
+
+   /* const int count = 3;
     qreal spacing = 4;
     qreal y = globalRect.top();
 
@@ -24,6 +43,25 @@ FollowLent::FollowLent(ColorScheme& scheme, QRectF rect, QGraphicsItem* parent)
     }
 
     // Высота ленты = count * globalRect.height()
+    _bounds = QRectF(0, 0, globalRect.width(), y);
+    */
+
+    qreal spacing = 4;
+    qreal y = globalRect.top();
+
+    while(q.next())
+    {
+        int id = q.value(0).toInt();
+        QString title = q.value(1).toString();
+
+        MewItem* post = new MewItem(_scheme, globalRect, this);
+        post->setTitle(title);
+        post->setPos(0, y);
+        posts.append(post);
+
+        y += post->boundingRect().height() + spacing;
+
+    }
     _bounds = QRectF(0, 0, globalRect.width(), y);
 }
 

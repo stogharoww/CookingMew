@@ -21,12 +21,15 @@ public:
     MewItem(ColorScheme& scheme, QRectF &globalRect, QGraphicsItem* paren = nullptr);
     void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override;
     QRectF boundingRect() const override;
+    void setTitle(const QString& t);
+
 
 
 
 private:
+    QString m_title;
     QVector<QColor> colors;
-
+    QGraphicsTextItem* titleItem;
     ColorScheme _scheme;
     QPixmap _avatareGroup;
     QGraphicsRectItem *mainRectItem;

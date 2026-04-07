@@ -7,6 +7,11 @@ MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *paren)
     : Button(scheme, paren),
     _scheme(scheme)
 {
+    //НОВОЕ!!
+   // titleItem = new QGraphicsTextItem(this);
+    titleItem->setDefaultTextColor(Qt::white);
+    titleItem->setPos(10, 10);
+    //
     mainRect = QRectF(4, 4, globalRect.width() - 8, 500);
     mainRectItem = new QGraphicsRectItem(mainRect);
     mainRectItem->setParentItem(this);
@@ -25,6 +30,13 @@ MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *paren)
     set_content(title, group, recepie, ingredients, tag);
 }
 
+void MewItem::setTitle(const QString& t)
+{
+    m_title = t;
+    content[0] = t;
+    //update();
+    titleItem->setPlainText(t);
+}
 
 void MewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
