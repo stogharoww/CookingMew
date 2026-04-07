@@ -3,11 +3,8 @@
 #include <QSqlRecord>
 #include <QVariant>
 
-
-
 bool CategoriesRec::Read()
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     QSqlQuery q(_db);
@@ -32,13 +29,11 @@ bool CategoriesRec::Read()
     _vector = vec;
     _hash = hash;
 
-    _db.close();
     return true;
 }
 
 bool CategoriesRec::Add(const CategoriesRec& c)
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     DbTransaction tr(_db);
@@ -51,13 +46,11 @@ bool CategoriesRec::Add(const CategoriesRec& c)
     if (!q.exec()) return false;
 
     tr.Commit();
-    _db.close();
     return true;
 }
 
 bool CategoriesRec::Update(const CategoriesRec& c)
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     DbTransaction tr(_db);
@@ -71,13 +64,11 @@ bool CategoriesRec::Update(const CategoriesRec& c)
     if (!q.exec()) return false;
 
     tr.Commit();
-    _db.close();
     return true;
 }
 
 bool CategoriesRec::Delete(const CategoriesRec& c)
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     DbTransaction tr(_db);
@@ -90,6 +81,5 @@ bool CategoriesRec::Delete(const CategoriesRec& c)
     if (!q.exec()) return false;
 
     tr.Commit();
-    _db.close();
     return true;
 }

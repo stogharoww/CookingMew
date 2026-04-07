@@ -10,48 +10,23 @@ FollowLent::FollowLent(ColorScheme& scheme, QRectF rect, QGraphicsItem* parent)
     _scheme(scheme),
     globalRect(rect)
 {
-    //Подключаем к базе данных
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "cookbook_connection");
-    db.setDatabaseName("CookBook.db");
+    QSqlDatabase db = QSqlDatabase::database("cookbook_connection");
 
-    if(!db.open())
-    {
+    if (!db.isOpen()) {
+        qDebug() << "DB not open!";
         return;
-    };
-
-    QSqlQuery q(db);
-    if(!q.exec("SELECT id, title FROM recipes"))
-    {
-        return;
-    };
-
-   /* const int count = 3;
-    qreal spacing = 4;
-    qreal y = globalRect.top();
-
-    for (int i = 0; i < count; ++i) {
-        MewItem* post = new MewItem(_scheme, globalRect, this);
-
-        qreal postHeight = post->boundingRect().height();
-
-        post->setPos(0, y);
-        posts.append(post);
-
-        y += postHeight + spacing;
-
-
     }
 
-    // Высота ленты = count * globalRect.height()
-    _bounds = QRectF(0, 0, globalRect.width(), y);
-    */
+    QSqlQuery q(db);
+    if (!q.exec("SELECT id, title FROM recipes")) {
+        qDebug() << "SQL error:" << q.lastError().text();
+        return;
+    }
 
     qreal spacing = 4;
     qreal y = globalRect.top();
 
-    while(q.next())
-    {
-        int id = q.value(0).toInt();
+    while (q.next()) {
         QString title = q.value(1).toString();
 
         MewItem* post = new MewItem(_scheme, globalRect, this);
@@ -60,10 +35,11 @@ FollowLent::FollowLent(ColorScheme& scheme, QRectF rect, QGraphicsItem* parent)
         posts.append(post);
 
         y += post->boundingRect().height() + spacing;
-
     }
+
     _bounds = QRectF(0, 0, globalRect.width(), y);
 }
+
 
 QRectF FollowLent::boundingRect() const
 {

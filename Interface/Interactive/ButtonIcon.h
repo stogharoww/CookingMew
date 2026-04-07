@@ -27,14 +27,11 @@ public:
 
 private:
     QColor mainCol;
-//<<<<<<< HEAD
+
     QVector<QColor>  colors;
     ButtonType btmType;
 
-//=======
-    //ColorScheme scheme;
-   // QVector<QColor> colors;
-    //ButtonType btmType;
+
     QString pathToIcons;
     bool _fold = false;
     QPixmap iconPixmap;
@@ -43,8 +40,7 @@ private:
     void iconAppend();
     void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override;
 
-    //void set_text() {} override;
-//>>>>>>> 69650dafdcaed053749402dd9d63a3072d425ca5
+
 
 };
 

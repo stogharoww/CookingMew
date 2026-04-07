@@ -5,6 +5,8 @@
 #include "Interface/ColorScheme.h"
 #include "Interface/Pages/HomePage.h"
 #include <QResizeEvent>
+#include "Database/database.h"
+
 
 
 class Mew: public QGraphicsView
@@ -29,6 +31,7 @@ private:
     void setUnvisibleAll();
 
     void initPages();
+    DataBase *db;
 
 };
 

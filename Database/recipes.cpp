@@ -5,7 +5,6 @@
 
 bool recipes::Read()
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     QSqlQuery q(_db);
@@ -34,13 +33,11 @@ bool recipes::Read()
     _vector = vec;
     _hash = hash;
 
-    _db.close();
     return true;
 }
 
 bool recipes::Add(const Recipes& r)
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     DbTransaction tr(_db);
@@ -57,13 +54,11 @@ bool recipes::Add(const Recipes& r)
     if (!q.exec()) return false;
 
     tr.Commit();
-    _db.close();
     return true;
 }
 
 bool recipes::Update(const Recipes& r)
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     DbTransaction tr(_db);
@@ -82,13 +77,11 @@ bool recipes::Update(const Recipes& r)
     if (!q.exec()) return false;
 
     tr.Commit();
-    _db.close();
     return true;
 }
 
 bool recipes::Delete(const Recipes& r)
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     DbTransaction tr(_db);
@@ -101,6 +94,5 @@ bool recipes::Delete(const Recipes& r)
     if (!q.exec()) return false;
 
     tr.Commit();
-    _db.close();
     return true;
 }

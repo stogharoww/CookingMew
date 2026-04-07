@@ -18,5 +18,7 @@
     <qresource prefix="/Logo">
         <file>resourses/logo/Logo.png</file>
     </qresource>
-    <qresource prefix="/databases"/>
+    <qresource prefix="/databases">
+        <file>resourses/database/CookBook.db</file>
+    </qresource>
 </RCC>

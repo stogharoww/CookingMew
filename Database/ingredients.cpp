@@ -2,11 +2,9 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QVariant>
-#include <QVector>
 
 bool ingredients::Read()
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     QSqlQuery q(_db);
@@ -41,13 +39,11 @@ bool ingredients::Read()
     _vector = vec;
     _hash = hash;
 
-    _db.close();
     return true;
 }
 
 bool ingredients::Add(const ingredient& ing)
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     DbTransaction tr(_db);
@@ -67,13 +63,11 @@ bool ingredients::Add(const ingredient& ing)
     if (!q.exec()) return false;
 
     tr.Commit();
-    _db.close();
     return true;
 }
 
 bool ingredients::Update(const ingredient& ing)
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     DbTransaction tr(_db);
@@ -95,13 +89,11 @@ bool ingredients::Update(const ingredient& ing)
     if (!q.exec()) return false;
 
     tr.Commit();
-    _db.close();
     return true;
 }
 
 bool ingredients::Delete(const ingredient& ing)
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     DbTransaction tr(_db);
@@ -114,6 +106,5 @@ bool ingredients::Delete(const ingredient& ing)
     if (!q.exec()) return false;
 
     tr.Commit();
-    _db.close();
     return true;
 }

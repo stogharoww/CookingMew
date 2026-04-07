@@ -8,7 +8,7 @@ MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *paren)
     _scheme(scheme)
 {
     //НОВОЕ!!
-   // titleItem = new QGraphicsTextItem(this);
+    titleItem = new QGraphicsTextItem(this);
     titleItem->setDefaultTextColor(Qt::white);
     titleItem->setPos(10, 10);
     //

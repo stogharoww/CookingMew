@@ -5,7 +5,6 @@
 
 bool units::Read()
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     QSqlQuery q(_db);
@@ -32,13 +31,11 @@ bool units::Read()
     _vector = vec;
     _hash = hash;
 
-    _db.close();
     return true;
 }
 
 bool units::Add(const Units& u)
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     DbTransaction tr(_db);
@@ -53,13 +50,11 @@ bool units::Add(const Units& u)
     if (!q.exec()) return false;
 
     tr.Commit();
-    _db.close();
     return true;
 }
 
 bool units::Update(const Units& u)
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     DbTransaction tr(_db);
@@ -75,13 +70,11 @@ bool units::Update(const Units& u)
     if (!q.exec()) return false;
 
     tr.Commit();
-    _db.close();
     return true;
 }
 
 bool units::Delete(const Units& u)
 {
-    _db.open();
     if (!IsOpened()) return false;
 
     DbTransaction tr(_db);
@@ -94,6 +87,5 @@ bool units::Delete(const Units& u)
     if (!q.exec()) return false;
 
     tr.Commit();
-    _db.close();
     return true;
 }

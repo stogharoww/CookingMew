@@ -6,6 +6,7 @@
 #include "Interface/Pages/HomePage.h"
 #include <QTimer>
 #include <QApplication>
+#include "Database/database.h"
 
 
 
@@ -14,6 +15,9 @@ Mew::Mew() {
     setScene(scene);
 
     scheme = new ColorScheme();
+
+    // ИНИЦИАЛИЗАЦИЯ БАЗЫ
+    db = new DataBase(":/databases/resourses/database/CookBook.db");   // путь в ресурсах
 
     scene->setBackgroundBrush(scheme->backgroundGet());
 
@@ -26,9 +30,8 @@ Mew::Mew() {
 
     setUnvisibleAll();
     home();
-
-
 }
+
 
 
 void Mew::meow()
