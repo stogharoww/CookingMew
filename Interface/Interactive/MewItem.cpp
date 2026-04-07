@@ -28,6 +28,10 @@ MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *paren)
     };
     QString title("title"), group("group"), tag("tag"), recepie("recepie..."), ingredients("ingredients");
     set_content(title, group, recepie, ingredients, tag);
+
+    //comment = new ButtonIcon(ButtonType::Bookmarks, scheme);
+    //comment->setPos(150, 150);
+    //comment->setParentItem(this);
 }
 
 void MewItem::setTitle(const QString& t)

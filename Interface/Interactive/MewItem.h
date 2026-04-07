@@ -14,6 +14,7 @@
 #include <QPainter>
 #include <QPen>
 #include <QGraphicsTextItem>
+#include "ButtonIcon.h"
 
 class MewItem : public Button
 {
@@ -37,7 +38,7 @@ private:
 
 
     QVector<QString> content;
-
+    ButtonIcon* comment;
 
 
     void set_content(QString &title, QString &group, QString &recepie, QString &ingredients, QString &tag);
