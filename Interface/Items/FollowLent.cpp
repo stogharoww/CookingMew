@@ -17,8 +17,20 @@ FollowLent::FollowLent(ColorScheme& scheme, QRectF rect, QGraphicsItem* parent)
         return;
     }
 
+    // Полный SQL-запрос, собирающий всё, что нужно
+    QString sql =
+        "SELECT r.id, r.title, r.instructions, c.name AS category, "
+        "GROUP_CONCAT(i.name || ' — ' || ri.amount || ' ' || u.name, '\n') AS ingredients "
+        "FROM recipes r "
+        "JOIN categories c ON r.category_id = c.id "
+        "LEFT JOIN recipe_ingredients ri ON ri.recipe_id = r.id "
+        "LEFT JOIN ingredients i ON i.id = ri.ingredient_id "
+        "LEFT JOIN units u ON u.id = ri.unit_id "
+        "GROUP BY r.id "
+        "ORDER BY r.id;";
+
     QSqlQuery q(db);
-    if (!q.exec("SELECT id, title FROM recipes")) {
+    if (!q.exec(sql)) {
         qDebug() << "SQL error:" << q.lastError().text();
         return;
     }
@@ -27,18 +39,32 @@ FollowLent::FollowLent(ColorScheme& scheme, QRectF rect, QGraphicsItem* parent)
     qreal y = globalRect.top();
 
     while (q.next()) {
-        QString title = q.value(1).toString();
 
+        QString title       = q.value("title").toString();
+        QString group       = q.value("category").toString();
+        QString ingredients = q.value("ingredients").toString();
+        QString steps       = q.value("instructions").toString();
+        QString tag         = "Database"; // пока нет тегов — оставляем пустым
+
+        // Создаём карточку
         MewItem* post = new MewItem(_scheme, globalRect, this);
-        post->setTitle(title);
+
+        // Передаём данные
+        post->setContent(title, group, ingredients, steps, tag);
+
+        // Позиционируем
         post->setPos(0, y);
+
         posts.append(post);
 
+        // Увеличиваем y на высоту карточки + отступ
         y += post->boundingRect().height() + spacing;
     }
 
+    // Границы ленты
     _bounds = QRectF(0, 0, globalRect.width(), y);
 }
+
 
 
 QRectF FollowLent::boundingRect() const

@@ -1,77 +1,109 @@
 #include "MewItem.h"
 #include <QFont>
+#include <QPainter>
 
 
 
-MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *paren)
-    : Button(scheme, paren),
+
+MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *parent)
+    : Button(scheme, parent),
     _scheme(scheme)
 {
-    //НОВОЕ!!
-    titleItem = new QGraphicsTextItem(this);
-    titleItem->setDefaultTextColor(Qt::white);
-    titleItem->setPos(10, 10);
-    //
+    // фиксированная высота карточки
     mainRect = QRectF(4, 4, globalRect.width() - 8, 500);
-    mainRectItem = new QGraphicsRectItem(mainRect);
-    mainRectItem->setParentItem(this);
-    mainRectItem->setPen(QPen(scheme.borderGet(), 1));
-    //mainRectItem->setBrush(QBrush(scheme.borderGet()));
+    setBoundingRect(mainRect);
 
-    //colors
-    //colors.resize(5);
-    // title, group, recepie, ingredients, tag - цвета в этом порядке
-    colors = {
-        _scheme.titleColor(), _scheme.groupColor(),
-        _scheme.textColorGet(), _scheme.additionalColorGet(),
-        _scheme.tagColor()
-    };
-    QString title("title"), group("group"), tag("tag"), recepie("recepie..."), ingredients("ingredients");
-    set_content(title, group, recepie, ingredients, tag);
+    // ====== TITLE ======
+    titleItem = new QGraphicsTextItem(this);
+    titleItem->setDefaultTextColor(_scheme.titleColor());
+    titleItem->setFont(QFont("Arial", 22));
+    titleItem->setPos(20, 20);
+    titleItem->setAcceptedMouseButtons(Qt::NoButton);
+    titleItem->setAcceptHoverEvents(false);
 
-    //comment = new ButtonIcon(ButtonType::Bookmarks, scheme);
-    //comment->setPos(150, 150);
-    //comment->setParentItem(this);
+    // ====== GROUP ======
+    groupItem = new QGraphicsTextItem(this);
+    groupItem->setDefaultTextColor(_scheme.groupColor());
+    groupItem->setFont(QFont("Arial", 14));
+    groupItem->setPos(20, 60);
+    groupItem->setAcceptedMouseButtons(Qt::NoButton);
+    groupItem->setAcceptHoverEvents(false);
+
+    // ====== INGREDIENTS ======
+    ingredientsItem = new QGraphicsTextItem(this);
+    ingredientsItem->setDefaultTextColor(_scheme.textColorGet());
+    ingredientsItem->setFont(QFont("Arial", 12));
+    ingredientsItem->setTextWidth(mainRect.width() - 40);
+    ingredientsItem->setPos(20, 90);
+    ingredientsItem->setAcceptedMouseButtons(Qt::NoButton);
+    ingredientsItem->setAcceptHoverEvents(false);
+
+    // ====== TAG ======
+    tagItem = new QGraphicsTextItem(this);
+    tagItem->setDefaultTextColor(_scheme.tagColor());
+    tagItem->setFont(QFont("Arial", 12));
+    tagItem->setPos(20, 220);
+    tagItem->setAcceptedMouseButtons(Qt::NoButton);
+    tagItem->setAcceptHoverEvents(false);
+
+    // ====== STEPS ======
+    stepsItem = new QGraphicsTextItem(this);
+    stepsItem->setDefaultTextColor(_scheme.textColorGet());
+    stepsItem->setFont(QFont("Arial", 12));
+    stepsItem->setTextWidth(mainRect.width() - 40);
+    stepsItem->setPos(20, 250);
+    stepsItem->setAcceptedMouseButtons(Qt::NoButton);
+    stepsItem->setAcceptHoverEvents(false);
 }
 
-void MewItem::setTitle(const QString& t)
+void MewItem::paint(QPainter* painter,
+                    const QStyleOptionGraphicsItem*,
+                    QWidget*)
 {
-    m_title = t;
-    content[0] = t;
-    //update();
-    titleItem->setPlainText(t);
+    painter->setRenderHint(QPainter::Antialiasing);
+
+    // фон карточки — управляется Button::_brush
+    painter->setPen(QPen(_scheme.borderGet(), 1));
+    painter->setBrush(_brush);
+    painter->drawRect(mainRect);
 }
 
-void MewItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+void MewItem::setContent(const QString& title,
+                         const QString& group,
+                         const QString& ingredients,
+                         const QString& steps,
+                         const QString& tag)
 {
-    QPen pen;
-    if (content.size() == 0)
-        return;
-    int count = 0;
-    QVector<int> contentSize = {
-        18, 20, 14, 14, 14
-    };
-    for (const auto& col : colors){
-        pen.setColor(col);
-        painter->setPen(pen);
-        QPointF textPos(mainRect.x() + 30, 20 + 20 * count);
-        font = QFont(arial, contentSize[count]);
-        painter->setFont(font);
-        painter->drawText(textPos, content[count]);
+    titleItem->setPlainText(title);
+    groupItem->setPlainText(group);
+    ingredientsItem->setPlainText(ingredients);
+    stepsItem->setPlainText(steps);
+    tagItem->setPlainText(tag);
 
+    // ====== Обрезка ингредиентов ======
+    if (ingredientsItem->boundingRect().height() > maxIngredientsHeight)
+    {
+        QString t = ingredients;
+        while (ingredientsItem->boundingRect().height() > maxIngredientsHeight && t.size() > 10)
+        {
+            t.chop(10);
+            ingredientsItem->setPlainText(t + "...");
+        }
+    }
 
-        count++;
+    // ====== Обрезка шагов ======
+    if (stepsItem->boundingRect().height() > maxStepsHeight)
+    {
+        QString t = steps;
+        while (stepsItem->boundingRect().height() > maxStepsHeight && t.size() > 10)
+        {
+            t.chop(10);
+            stepsItem->setPlainText(t + "...");
+        }
     }
 }
 
 QRectF MewItem::boundingRect() const
 {
     return mainRect;
-}
-
-void MewItem::set_content(QString &title, QString &group, QString &recepie, QString &ingredients, QString &tag)
-{
-    content = {
-        title, group, recepie, ingredients, tag
-    };
 }
