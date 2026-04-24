@@ -40,7 +40,7 @@ private:
     QColor background = QColor("#1f1f1f"); // фон
     QColor textTheme = QColor("#F5F5F5"); // цвет текста вне кнопок (если надо)
     QColor groupTextTheme = QColor(Qt::magenta); //цвет названия групп (розовый)
-    QColor titleTextTheme = QColor("#890099"); // цвет названия рецепта (красный)
+    QColor titleTextTheme = QColor("#F08080"); // цвет названия рецепта (яркий коралл)
     QColor tagTextTheme = QColor("#890099"); // цвет тега (фиолетовый)
 
 

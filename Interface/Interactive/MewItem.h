@@ -1,46 +1,39 @@
 #pragma once
 
 #include "../Virtual/Button.h"
-#include <QVector>
-#include <QString>
-#include <QFont>
-#include <QColor>
-#include <QGraphicsItem>
+#include <QGraphicsTextItem>
 #include <QGraphicsRectItem>
-#include <QGraphicsTextItem>
-#include <QPixmap>
-#include "../ColorScheme.h"
-#include <QRectF>
-#include <QPainter>
 #include <QPen>
-#include <QGraphicsTextItem>
+#include <QBrush>
+#include <QPainter>
 
 class MewItem : public Button
 {
 public:
-    MewItem(ColorScheme& scheme, QRectF &globalRect, QGraphicsItem* paren = nullptr);
-    void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override;
+    MewItem(ColorScheme& scheme, QRectF& globalRect, QGraphicsItem* parent = nullptr);
+
+    void setContent(const QString& title,
+                    const QString& group,
+                    const QString& ingredients,
+                    const QString& steps,
+                    const QString& tag);
+
     QRectF boundingRect() const override;
-    void setTitle(const QString& t);
-
-
-
+    void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override;
 
 private:
-    QString m_title;
-    QVector<QColor> colors;
-    QGraphicsTextItem* titleItem;
-    ColorScheme _scheme;
-    QPixmap _avatareGroup;
-    QGraphicsRectItem *mainRectItem;
+    ColorScheme& _scheme;
+
     QRectF mainRect;
 
+    // элементы карточки
+    QGraphicsTextItem* titleItem;
+    QGraphicsTextItem* groupItem;
+    QGraphicsTextItem* ingredientsItem;
+    QGraphicsTextItem* stepsItem;
+    QGraphicsTextItem* tagItem;
 
-    QVector<QString> content;
-
-
-
-    void set_content(QString &title, QString &group, QString &recepie, QString &ingredients, QString &tag);
-
+    // ограничения
+    qreal maxIngredientsHeight = 120;
+    qreal maxStepsHeight = 120;
 };
-
