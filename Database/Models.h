@@ -11,7 +11,7 @@ struct Categories_rec
     Categories_rec() {}
 };
 
-struct Ingredients
+/*struct Ingredients
 {
     int id;
     QString name;
@@ -23,7 +23,7 @@ struct Ingredients
 
     Ingredients() {}
 };
-
+*/
 struct Recipe_ingredients
 {
     int recipe_id;

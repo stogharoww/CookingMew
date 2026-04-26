@@ -6,6 +6,8 @@ MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *parent)
     : Button(scheme, parent),
     _scheme(scheme)
 {
+    setAcceptHoverEvents(true);
+
     // фиксированная высота карточки
     mainRect = QRectF(4, 4, globalRect.width() - 8, 500);
     setBoundingRect(mainRect);
@@ -15,16 +17,12 @@ MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *parent)
     groupItem->setDefaultTextColor(_scheme.groupColor());
     groupItem->setFont(QFont("Arial", 22));
     groupItem->setPos(20, 20);
-    groupItem->setAcceptedMouseButtons(Qt::NoButton);
-    groupItem->setAcceptHoverEvents(false);
 
     // ====== TITLE ======
     titleItem = new QGraphicsTextItem(this);
     titleItem->setDefaultTextColor(_scheme.titleColor());
     titleItem->setFont(QFont("Arial", 14));
     titleItem->setPos(25, 60);
-    titleItem->setAcceptedMouseButtons(Qt::NoButton);
-    titleItem->setAcceptHoverEvents(false);
 
     // ====== INGREDIENTS ======
     ingredientsItem = new QGraphicsTextItem(this);
@@ -32,16 +30,12 @@ MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *parent)
     ingredientsItem->setFont(QFont("Arial", 12));
     ingredientsItem->setTextWidth(mainRect.width() - 40);
     ingredientsItem->setPos(25, 90);
-    ingredientsItem->setAcceptedMouseButtons(Qt::NoButton);
-    ingredientsItem->setAcceptHoverEvents(false);
 
     // ====== TAG ======
     tagItem = new QGraphicsTextItem(this);
     tagItem->setDefaultTextColor(_scheme.tagColor());
     tagItem->setFont(QFont("Arial", 12));
     tagItem->setPos(groupItem->boundingRect().height() + 25, 25);
-    tagItem->setAcceptedMouseButtons(Qt::NoButton);
-    tagItem->setAcceptHoverEvents(false);
 
     // ====== STEPS ======
     stepsItem = new QGraphicsTextItem(this);
@@ -49,8 +43,6 @@ MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *parent)
     stepsItem->setFont(QFont("Arial", 12));
     stepsItem->setTextWidth(mainRect.width() - 40);
     stepsItem->setPos(25, 250);
-    stepsItem->setAcceptedMouseButtons(Qt::NoButton);
-    stepsItem->setAcceptHoverEvents(false);
 }
 
 void MewItem::paint(QPainter* painter,
@@ -59,9 +51,31 @@ void MewItem::paint(QPainter* painter,
 {
     painter->setRenderHint(QPainter::Antialiasing);
 
+    // ====== ТЕНЬ ======
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(QColor(0, 0, 0, hovered ? 70 : 40)); // тень усиливается при наведении
+    painter->drawRoundedRect(mainRect.adjusted(3, 3, 3, 3), 8, 8);
+
+    // ====== СЕРЫЙ ФОН ======
+    QColor bg = hovered
+                    ? QColor(70, 70, 70)   // серый при наведении
+                    : QColor(40, 40, 40);  // обычный тёмно‑серый фон
+
+    painter->setBrush(bg);
     painter->setPen(QPen(_scheme.borderGet(), 1));
-    painter->setBrush(_brush);
-    painter->drawRect(mainRect);
+    painter->drawRoundedRect(mainRect, 8, 8);
+}
+
+void MewItem::hoverEnterEvent(QGraphicsSceneHoverEvent*)
+{
+    hovered = true;
+    update();
+}
+
+void MewItem::hoverLeaveEvent(QGraphicsSceneHoverEvent*)
+{
+    hovered = false;
+    update();
 }
 
 void MewItem::setContent(const QString& title,

@@ -21,6 +21,10 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override;
 
+protected:
+    void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
+
 private:
     ColorScheme& _scheme;
 
@@ -36,4 +40,7 @@ private:
     // ограничения
     qreal maxIngredientsHeight = 120;
     qreal maxStepsHeight = 120;
+
+    // состояние наведения
+    bool hovered = false;
 };
