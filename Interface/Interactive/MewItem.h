@@ -35,5 +35,6 @@ private:
 
     // ограничения
     qreal maxIngredientsHeight = 120;
-    qreal maxStepsHeight = 120;
+    qreal maxStepsHeight = 350;
+    qreal maxStepsWeight = 60;
 };

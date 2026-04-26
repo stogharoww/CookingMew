@@ -12,7 +12,8 @@ HomePage::HomePage(ColorScheme& scheme, QRectF rect)
     : Page(scheme, rect),
     _scheme(scheme)
 {
-
+    currentBtm = textForBtm[0];
+    change_current_btm(textForBtm[0]);
 
 }
 

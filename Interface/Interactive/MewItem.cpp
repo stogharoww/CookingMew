@@ -35,7 +35,7 @@ MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *parent)
     ingredientsItem->setDefaultTextColor(_scheme.additionalColorGet());
     ingredientsItem->setFont(QFont("Arial", 12));
     ingredientsItem->setTextWidth(mainRect.width() - 40);
-    ingredientsItem->setPos(25, 90);
+    ingredientsItem->setPos(mainRect.width() * 3 / 5 + 20, 90);
     ingredientsItem->setAcceptedMouseButtons(Qt::NoButton);
     ingredientsItem->setAcceptHoverEvents(false);
 
@@ -43,7 +43,7 @@ MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *parent)
     tagItem = new QGraphicsTextItem(this);
     tagItem->setDefaultTextColor(_scheme.tagColor());
     tagItem->setFont(QFont("Arial", 12));
-    tagItem->setPos(groupItem->boundingRect().height() + 25, 25);
+    //tagItem->setPos(groupItem->boundingRect().height() + 25, 25);
     tagItem->setAcceptedMouseButtons(Qt::NoButton);
     tagItem->setAcceptHoverEvents(false);
 
@@ -51,8 +51,8 @@ MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *parent)
     stepsItem = new QGraphicsTextItem(this);
     stepsItem->setDefaultTextColor(_scheme.textColorGet());
     stepsItem->setFont(QFont("Arial", 12));
-    stepsItem->setTextWidth(mainRect.width() - 40);
-    stepsItem->setPos(25, 250);
+    stepsItem->setTextWidth(mainRect.width() * 3 / 5 - 40);
+    stepsItem->setPos(25, 90);
     stepsItem->setAcceptedMouseButtons(Qt::NoButton);
     stepsItem->setAcceptHoverEvents(false);
 }
@@ -80,6 +80,7 @@ void MewItem::setContent(const QString& title,
     ingredientsItem->setPlainText(ingredients);
     stepsItem->setPlainText(steps);
     tagItem->setPlainText("@" + tag);
+    tagItem->setPos(groupItem->boundingRect().width() + 25, 28);
 
     // ====== Обрезка ингредиентов ======
     if (ingredientsItem->boundingRect().height() > maxIngredientsHeight)
@@ -88,7 +89,7 @@ void MewItem::setContent(const QString& title,
         while (ingredientsItem->boundingRect().height() > maxIngredientsHeight && t.size() > 10)
         {
             t.chop(10);
-            ingredientsItem->setPlainText(t + "...");
+            ingredientsItem->setPlainText(t + "\n. . .");
         }
     }
 
@@ -99,7 +100,7 @@ void MewItem::setContent(const QString& title,
         while (stepsItem->boundingRect().height() > maxStepsHeight && t.size() > 10)
         {
             t.chop(10);
-            stepsItem->setPlainText(t + "...");
+            stepsItem->setPlainText(t + "\n. . .");
         }
     }
 }

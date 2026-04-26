@@ -20,7 +20,7 @@ FollowLent::FollowLent(ColorScheme& scheme, QRectF rect, QGraphicsItem* parent)
     // Полный SQL-запрос, собирающий всё, что нужно
     QString sql =
         "SELECT r.id, r.title, r.instructions, c.name AS category, "
-        "GROUP_CONCAT(i.name || ' — ' || ri.amount || ' ' || u.name, '\n') AS ingredients "
+        "GROUP_CONCAT(i.name || ' — ' || ri.amount || ' ' || u.short_name, '\n') AS ingredients "
         "FROM recipes r "
         "JOIN categories c ON r.category_id = c.id "
         "LEFT JOIN recipe_ingredients ri ON ri.recipe_id = r.id "

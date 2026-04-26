@@ -1,6 +1,7 @@
 #include "Page.h"
 #include <QPen>
 #include <QTimer>
+#include "../../Mew.h"
 
 Page::Page(ColorScheme& scheme, QRectF rect)
     : scheme(scheme),
@@ -114,43 +115,43 @@ void Page::btmHomeClicked()
 {
     qDebug() << "clicked";
     change_current_btm(textForBtm[0]);
-    emit goToHome();
+    emit changeCurrentPage(PageID::home);
 }
 
 void Page::btmExploreClicked()
 {
     change_current_btm(textForBtm[1]);
-    emit goToExplore();
+    emit changeCurrentPage(PageID::explore);
 }
 
 void Page::btmBookmarksClicked()
 {
     change_current_btm(textForBtm[2]);
-    emit goToBookmarks();
+    emit changeCurrentPage(PageID::bookmarks);
 }
 
 void Page::btmIngredientsClicked()
 {
     change_current_btm(textForBtm[3]);
-    emit goToIngredients();
+    emit changeCurrentPage(PageID::ingredients);
 }
 
 void Page::btmMyGroupsClicked()
 {
     change_current_btm(textForBtm[4]);
-    emit goToMyGroups();
+    emit changeCurrentPage(PageID::myGroups);
 }
 
 void Page::btmMoreClicked()
 {
     change_current_btm(textForBtm[5]);
-    emit goToMore();
+    emit changeCurrentPage(PageID::more);
 }
 
 void Page::btmPostClicked()
 {
     change_current_btm(textForBtm[6]);
-    emit openPost();
+    emit changeCurrentPage(PageID::post);
 }
 
 void Page::connectBtms()

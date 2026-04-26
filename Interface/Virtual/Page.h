@@ -6,6 +6,19 @@
 #include "../Interactive/ButtonMew.h"
 #include "../Items/Line.h"
 
+
+
+enum class PageID{
+    home,
+    recepie,
+    explore,
+    bookmarks,
+    ingredients,
+    myGroups,
+    more,
+    post
+};
+
 class Page : public QGraphicsObject
 {
     Q_OBJECT
@@ -20,13 +33,7 @@ public:
     //virtual void update_color_scheme(ColorScheme &new_scheme);
 
 signals:
-    void goToHome();
-    void goToExplore();
-    void goToBookmarks();
-    void goToIngredients();
-    void goToMyGroups();
-    void goToMore();
-    void openPost();
+    void changeCurrentPage(PageID currentPage);
 
 protected:
 
@@ -46,6 +53,8 @@ protected:
     virtual void btmPostClicked();
 
     virtual void connectBtms();
+
+
 
     ColorScheme& scheme;
     QRectF rect;

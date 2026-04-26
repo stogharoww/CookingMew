@@ -27,6 +27,7 @@ public slots:
     void btmHeartClicked();
     void postClicked();
 
+
 signals:
     void goToPageRecepie();
 
