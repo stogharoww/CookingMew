@@ -27,15 +27,16 @@ public slots:
     void btmHeartClicked();
     void postClicked();
 
-
 signals:
     void goToPageRecepie();
 
 private:
     void create_main_pannel() override;
+
     QRectF mainRect;
-    QVector<Button*> _btms;
+    QVector<Button*> __btms;   // кнопки верхней панели
     ColorScheme _scheme;
+
     SquareTextBtm *forYouBtm;
     SquareTextBtm *followBtm;
     Line *followAndForYouLine;
@@ -44,7 +45,5 @@ private:
     MewScrollArea *forYouScrollArea;
 
     void moveLine(SquareTextBtm* btm);
-
     void connecting();
 };
-

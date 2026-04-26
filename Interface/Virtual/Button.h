@@ -24,6 +24,8 @@ public:
         setAcceptHoverEvents(true);
         setColorScheme();
         font = QFont(arial, 18);
+        _brush = backgroundColor;
+        //baseColor = backgroundColor;
 
     }
     virtual ~Button() = default;
@@ -94,6 +96,7 @@ protected:
 
 
     bool textBolded = false;
+    bool _isCustomColor = false;
 };
 
 

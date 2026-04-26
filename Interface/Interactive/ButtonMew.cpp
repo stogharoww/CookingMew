@@ -9,6 +9,7 @@
 ButtonMew::ButtonMew(ColorScheme& scheme, QGraphicsItem* parent)
     : Button(scheme, parent)
 {
+    _isCustomColor = true;
     setAcceptHoverEvents(true);
     setAcceptedMouseButtons(Qt::LeftButton);
 
@@ -37,6 +38,15 @@ void ButtonMew::set_pixmap(QString &path)
     qreal yPos = 0;
 
     _pixmap->setPos(xPos, yPos);
+}
+
+void ButtonMew::set_main_color(QColor &color)
+{
+    baseColor = color;
+    currentColor = baseColor;
+    hoverColor   = baseColor.lighter(120);
+    pressedColor = baseColor.darker(120);
+    update();
 }
 
 void ButtonMew::set_text(QString &text)

@@ -17,6 +17,7 @@ public:
     /// \param path: путь до картинки
     ///
     void set_pixmap(QString& path) override;
+    void set_main_color(QColor &color);
     ///
     /// \brief set_text: Устанавливает текст кнопки
     /// \param text: текст

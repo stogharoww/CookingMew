@@ -1,24 +1,43 @@
 #include "Page.h"
 #include <QPen>
 #include <QTimer>
-#include "../../Mew.h"
 
-Page::Page(ColorScheme& scheme, QRectF rect)
+Page::Page(ColorScheme& scheme, QRectF rect, PageID id)
     : scheme(scheme),
-    rect(rect)
+    rect(rect),
+    pageID(id)
 {
     _btms.resize(7);
     width = rect.width();
     height = rect.height();
-    // _btms = {
-    //     homeBtm, exploreBtm, bookmarksBtm, ingredientsBtm,
-    //     myGroupsBtm, moreBtm, postBtm
-    // };
+
     textForBtm = {
         "Home", "Explore", "Bookmarks", "Ingredients",
         "My groups", "More", "Post"
     };
-    currentBtm = textForBtm[0];
+}
+
+void Page::resize(int width, int height)
+{
+    this->width = width;
+    this->height = height;
+    rect = QRectF(0, 0, width, height);
+
+    update_pages();
+}
+
+void Page::update_pages()
+{
+    auto items = childItems();
+    for (auto* item : items)
+        delete item;
+
+    _btms.clear();
+    _btms.resize(7);
+
+    create_left_pannel();
+    create_main_pannel();
+    create_right_pannel();
 }
 
 void Page::create_left_pannel()
@@ -30,10 +49,12 @@ void Page::create_left_pannel()
     QGraphicsPixmapItem *logo = new QGraphicsPixmapItem(newLogoSize);
     logo->setParentItem(this);
     logo->setPos(25, 25);
+
     // Линия
     Line* lines = new Line(scheme);
     lines->addLine(QPointF(width / 5, 0), QPointF(width / 5, height));
     lines->setParentItem(this);
+
     // Панель
     leftRect = QRectF(QPointF(0, 0), QPointF(width / 5, height));
 
@@ -42,145 +63,76 @@ void Page::create_left_pannel()
     leftPannelRect->setPen(QPen(Qt::NoPen));
 
     qreal yPosBtm = leftRect.height();
-    // Кнопки
-    int count = 0;
 
-    for (int i = 0; i < _btms.size(); i++) {
+    int count = 0;
+    for (int i = 0; i < _btms.size(); i++)
+    {
         _btms[i] = new ButtonMew(scheme);
         auto& btm = _btms[i];
-        btm->setPos(leftRect.width() / 5, yPosBtm -
-                            (yPosBtm - btm->boundingRect().height() - 65 * count - yPosBtm / 5));
+
+        btm->setPos(leftRect.width() / 5,
+                    yPosBtm - (yPosBtm - btm->boundingRect().height() - 65 * count - yPosBtm / 5));
+
         btm->set_text(textForBtm[count]);
+
+        // Цвета
         if (count != 6)
             btm->change_main_color();
-        if (count == 6)
-            btm->set_text_bold();
-        if (textForBtm[count] == currentBtm){
-            btm->set_text_bold();
+        else {
+            QColor base = scheme.baseColorGet();
+            btm->set_main_color(base);
         }
-        count++;
+
+        // Жирность активной кнопки
+        if (isButtonActive(count))
+            btm->set_text_bold();
+
         btm->setParentItem(this);
+        count++;
     }
 
-    // button = new ButtonMew(scheme);
-    // QString text = "text";
-    // button->set_text(text);
-    // button->setPos(leftRect.width() / 3.25, leftRect.height() / 5);
-    // button->setZValue(999);
-    // button->setParentItem(this);
     connectBtms();
 }
 
-void Page::resize(int width, int height)
+bool Page::isButtonActive(int index)
 {
-    this->width = width;
-    this->height = height;
-    rect = QRectF(0, 0, width, height);
-
-    // Удаляем ВСЕ дочерние элементы
-
-    update_pages();
+    switch (pageID)
+    {
+    case PageID::home:        return index == 0;
+    case PageID::explore:     return index == 1;
+    case PageID::bookmarks:   return index == 2;
+    case PageID::ingredients: return index == 3;
+    case PageID::myGroups:    return index == 4;
+    case PageID::more:        return index == 5;
+    case PageID::post:        return index == 6;
+    default: return false;
+    }
 }
 
-// void Page::update_color_scheme(ColorScheme &new_scheme)
-// {
-//     scheme = new_scheme;
-//     update();
-// }
+void Page::btmHomeClicked()        { emit changeCurrentPage(PageID::home); }
+void Page::btmExploreClicked()     { emit changeCurrentPage(PageID::explore); }
+void Page::btmBookmarksClicked()   { emit changeCurrentPage(PageID::bookmarks); }
+void Page::btmIngredientsClicked() { emit changeCurrentPage(PageID::ingredients); }
+void Page::btmMyGroupsClicked()    { emit changeCurrentPage(PageID::myGroups); }
+void Page::btmMoreClicked()        { emit changeCurrentPage(PageID::more); }
+void Page::btmPostClicked()        { emit changeCurrentPage(PageID::post); }
 
-void Page::update_pages()
-{
-    auto items = childItems();
-    QTimer::singleShot(0, this, [this, items]() {
-        for (auto* item : items)
-            delete item;
-        _btms.clear();
-        _btms.resize(7);
-        create_left_pannel();
-        create_main_pannel();
-        create_right_pannel();
-    });
-}
-
-void Page::change_current_btm(QString &btmText)
-{
-    currentBtm = btmText;
-    update_pages();
-
-}
-
-
-
-void Page::btmHomeClicked()
-{
-    qDebug() << "clicked";
-    change_current_btm(textForBtm[0]);
-    emit changeCurrentPage(PageID::home);
-}
-
-void Page::btmExploreClicked()
-{
-    change_current_btm(textForBtm[1]);
-    emit changeCurrentPage(PageID::explore);
-}
-
-void Page::btmBookmarksClicked()
-{
-    change_current_btm(textForBtm[2]);
-    emit changeCurrentPage(PageID::bookmarks);
-}
-
-void Page::btmIngredientsClicked()
-{
-    change_current_btm(textForBtm[3]);
-    emit changeCurrentPage(PageID::ingredients);
-}
-
-void Page::btmMyGroupsClicked()
-{
-    change_current_btm(textForBtm[4]);
-    emit changeCurrentPage(PageID::myGroups);
-}
-
-void Page::btmMoreClicked()
-{
-    change_current_btm(textForBtm[5]);
-    emit changeCurrentPage(PageID::more);
-}
-
-void Page::btmPostClicked()
-{
-    change_current_btm(textForBtm[6]);
-    emit changeCurrentPage(PageID::post);
-}
 
 void Page::connectBtms()
 {
-    int cout = 0;
-    for (auto& btm : _btms){
-        switch (cout){
-        case 0:
-            connect(btm, &Button::clicked, this, &Page::btmHomeClicked);
-            break;
-        case 1:
-            connect(btm, &Button::clicked, this, &Page::btmExploreClicked);
-            break;
-        case 2:
-            connect(btm, &Button::clicked, this, &Page::btmBookmarksClicked);
-            break;
-        case 3:
-            connect(btm, &Button::clicked, this, &Page::btmIngredientsClicked);
-            break;
-        case 4:
-            connect(btm, &Button::clicked, this, &Page::btmMyGroupsClicked);
-            break;
-        case 5:
-            connect(btm, &Button::clicked, this, &Page::btmMoreClicked);
-            break;
-        case 6:
-            connect(btm, &Button::clicked, this, &Page::btmPostClicked);
-            break;
+    int count = 0;
+    for (auto& btm : _btms)
+    {
+        switch (count)
+        {
+        case 0: connect(btm, &Button::clicked, this, &Page::btmHomeClicked); break;
+        case 1: connect(btm, &Button::clicked, this, &Page::btmExploreClicked); break;
+        case 2: connect(btm, &Button::clicked, this, &Page::btmBookmarksClicked); break;
+        case 3: connect(btm, &Button::clicked, this, &Page::btmIngredientsClicked); break;
+        case 4: connect(btm, &Button::clicked, this, &Page::btmMyGroupsClicked); break;
+        case 5: connect(btm, &Button::clicked, this, &Page::btmMoreClicked); break;
+        case 6: connect(btm, &Button::clicked, this, &Page::btmPostClicked); break;
         }
-        cout++;
+        count++;
     }
 }

@@ -11,6 +11,10 @@
 
 
 Mew::Mew() {
+    viewport()->setMouseTracking(true);
+    setMouseTracking(true);
+
+
     scene = new QGraphicsScene(this);
     setScene(scene);
 

@@ -3,10 +3,10 @@
 #include "../Virtual/Page.h"
 #include "../ColorScheme.h"
 
-class RecepiePage : public Page
+class MyGroupsPage : public Page
 {
 public:
-    RecepiePage(ColorScheme &scheme, QRectF rect);
+    MyGroupsPage(ColorScheme &scheme, QRectF rect);
 
 private:
     void create_main_pannel() override {};
