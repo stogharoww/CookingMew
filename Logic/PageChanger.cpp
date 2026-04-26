@@ -1,15 +1,17 @@
 #include "PageChanger.h"
-#include "../Interface/Pages/RecepiePage.h"
-#include "../Interface/Pages/BookmarksPage.h".h"
-#include "../Interface/Pages/IngredientsPage.h".h"
-#include "../Interface/Pages/MyGroupsPage.h".h"
-#include "../Interface/Pages/ExplorePage.h".h"
+#include "../Interface/Pages/BookmarksPage.h"
+#include "../Interface/Pages/IngredientsPage.h"
+#include "../Interface/Pages/MyGroupsPage.h"
+#include "../Interface/Pages/ExplorePage.h"
 
 
 PageChanger::PageChanger(ColorScheme &scheme, QRectF rect)
 {
     HomePage *home = new HomePage(scheme, rect);
-    RecepiePage *recepie = new RecepiePage(scheme, rect);
+    connect(home, &HomePage::goToRecipePage,
+            this, &PageChanger::openRecipe);
+
+    recepie = new RecepiePage(scheme, rect);
     BookmarksPage *bookmarks = new BookmarksPage(scheme, rect);
     IngredientsPage *ingredients = new IngredientsPage(scheme, rect);
     MyGroupsPage *myGroups = new MyGroupsPage(scheme, rect);
@@ -20,6 +22,8 @@ PageChanger::PageChanger(ColorScheme &scheme, QRectF rect)
     pages = {
         home, recepie, bookmarks, ingredients, myGroups, explore
     };
+    for (auto* page : pages)
+        page->refresh();
 
 }
 
@@ -51,10 +55,25 @@ Page *PageChanger::getCurrentPage(PageID currentPage)
     case PageID::ingredients: return pages[3];
     case PageID::myGroups: return pages[4];
     case PageID::explore: return pages[5];
-    default: pages[0];
+    default: return pages[0];
     };
 
 }
+
+
+void PageChanger::openRecipe(int recipeID)
+{
+    qDebug() << "[PageChanger] openRecipe, id =" << recipeID;
+
+    currentPage = PageID::recepie;
+
+    recepie->setRecipeID(recipeID);
+    recepie->refresh();
+
+    emit changePage(PageID::recepie);
+}
+
+
 
 
 

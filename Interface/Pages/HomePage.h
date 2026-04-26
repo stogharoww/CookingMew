@@ -18,6 +18,7 @@
 
 class HomePage : public Page
 {
+    Q_OBJECT
 public:
     HomePage(ColorScheme &scheme, QRectF rect);
 
@@ -26,9 +27,11 @@ public slots:
     void btmFollowClicked();
     void btmHeartClicked();
     void postClicked();
+    void handleOpenRecipe(int recipeID);
 
 signals:
     void goToPageRecepie();
+    void goToRecipePage(int recipeID);
 
 private:
     void create_main_pannel() override;

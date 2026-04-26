@@ -9,6 +9,7 @@
 
 class MewItem : public Button
 {
+    Q_OBJECT
 public:
     MewItem(ColorScheme& scheme, QRectF& globalRect, QGraphicsItem* parent = nullptr);
 
@@ -21,7 +22,14 @@ public:
     QRectF boundingRect() const override;
     void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override;
 
+    void setRecepieID(int id);
+
+signals:
+    void clicked(int recID);
+
+
 private:
+    int _recepieID = -1;
     ColorScheme& _scheme;
 
     QRectF mainRect;
@@ -37,4 +45,6 @@ private:
     qreal maxIngredientsHeight = 120;
     qreal maxStepsHeight = 350;
     qreal maxStepsWeight = 60;
+
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 };

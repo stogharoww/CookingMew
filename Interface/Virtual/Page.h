@@ -28,6 +28,8 @@ public:
 
     QRectF boundingRect() const override { return rect; }
     void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override {}
+    void refresh() { update_pages(); }
+
 
 signals:
     void changeCurrentPage(PageID currentPage);

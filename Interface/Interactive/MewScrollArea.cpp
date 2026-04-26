@@ -1,4 +1,5 @@
 #include "MewScrollArea.h"
+#include "../Items/FollowLent.h"
 
 
 
@@ -20,12 +21,25 @@ void MewScrollArea::paint(QPainter* painter,
                           const QStyleOptionGraphicsItem*, QWidget*){}
 
 
-void MewScrollArea::setContent(QGraphicsItem* item)
+void MewScrollArea::setContent(QGraphicsObject* item)
 {
     _content = item;
     _content->setParentItem(this);
     _content->setPos(0, 0);
+
+    // Пытаемся привести к FollowLent
+    FollowLent* lent = qobject_cast<FollowLent*>(item);
+    if (lent)
+    {
+        connect(lent, &FollowLent::openRecepie,
+                this, [this](int id){
+                    qDebug() << "[ScrollArea] got openRecepie, id =" << id;
+                    emit openRecipe(id);
+                });
+    }
+
 }
+
 
 void MewScrollArea::wheelEvent(QGraphicsSceneWheelEvent* event)
 {

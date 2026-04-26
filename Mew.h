@@ -20,6 +20,7 @@ public:
 
 public slots:
     void changeCurrentPage(PageID pageID);
+    void recepieCheck(int recID);
     // void home();
     // void recepie();
 
@@ -37,8 +38,9 @@ private:
     DataBase *db;
 
     PageID currentPg = PageID::home;
+    int recepieID;
 
-    PageChanger pages;
+    PageChanger *pages;
 
 };
 

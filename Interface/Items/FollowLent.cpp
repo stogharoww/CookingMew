@@ -45,11 +45,13 @@ FollowLent::FollowLent(ColorScheme& scheme, QRectF rect, QGraphicsItem* parent)
         QString ingredients = q.value("ingredients").toString();
         QString steps       = q.value("instructions").toString();
         QString tag         = "Database"; // пока нет тегов — оставляем пустым
+        int id = q.value("id").toInt();
 
         // Создаём карточку
         MewItem* post = new MewItem(_scheme, globalRect, this);
 
         // Передаём данные
+        post->setRecepieID(id);
         post->setContent(title, group, ingredients, steps, tag);
 
         // Позиционируем
@@ -57,9 +59,17 @@ FollowLent::FollowLent(ColorScheme& scheme, QRectF rect, QGraphicsItem* parent)
 
         posts.append(post);
 
+
         // Увеличиваем y на высоту карточки + отступ
         y += post->boundingRect().height() + spacing;
+        connect(post, &MewItem::clicked, this, [this](int id){
+            qDebug() << "[FollowLent] got clicked from MewItem, id =" << id;
+            emit openRecepie(id);
+        });
+
     }
+
+
 
     // Границы ленты
     _bounds = QRectF(0, 0, globalRect.width(), y);

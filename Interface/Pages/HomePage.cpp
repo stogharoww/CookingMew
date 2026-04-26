@@ -10,7 +10,6 @@ HomePage::HomePage(ColorScheme& scheme, QRectF rect)
     : Page(scheme, rect, PageID::home),
     _scheme(scheme)
 {
-    // Никаких currentBtm, никаких change_current_btm
 }
 
 void HomePage::btmForYouClicked()
@@ -44,6 +43,13 @@ void HomePage::postClicked()
 {
     // пока пусто
 }
+
+void HomePage::handleOpenRecipe(int recipeID)
+{
+    qDebug() << "[HomePage] handleOpenRecipe, id =" << recipeID;
+    emit goToRecipePage(recipeID);
+}
+
 
 void HomePage::create_main_pannel()
 {
@@ -92,6 +98,11 @@ void HomePage::create_main_pannel()
     forYouScrollArea = new MewScrollArea(scrollRect, mainRectItem);
     FollowLent *lent = new FollowLent(scheme, scrollRect);
     forYouScrollArea->setContent(lent);
+    connect(forYouScrollArea, &MewScrollArea::openRecipe,
+            this, &HomePage::handleOpenRecipe);
+
+
+
 }
 
 void HomePage::moveLine(SquareTextBtm *btm)

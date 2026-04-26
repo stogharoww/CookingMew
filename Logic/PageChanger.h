@@ -4,6 +4,9 @@
 #include "../Interface/Virtual/Page.h"
 #include <QVector>
 #include "../Interface/Pages/HomePage.h"
+#include "../Interface/Pages/RecepiePage.h"
+#include <QObject>
+
 
 
 // enum class PageID{
@@ -17,8 +20,9 @@
 //     post
 // };
 
-class PageChanger
+class PageChanger: public QObject
 {
+    Q_OBJECT
 public:
     PageChanger() {};
     PageChanger(ColorScheme &scheme, QRectF rect);
@@ -29,11 +33,17 @@ public:
 
     Page* getCurrentPage(PageID currentPage);
 
+public slots:
+    void openRecipe(int recipeID);
 
+signals:
+    void changePage(PageID id);
 
 
 
 private:
     QVector<Page*> pages;
+    PageID currentPage = PageID::home;
+    RecepiePage *recepie = nullptr;
 };
 

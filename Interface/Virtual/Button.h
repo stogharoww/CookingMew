@@ -14,12 +14,12 @@
 #include <QFontDatabase>
 
 
-class Button: public QObject, public QGraphicsItem
+class Button: public QGraphicsObject
 {
     Q_OBJECT
 public:
     explicit Button(ColorScheme& colorScheme, QGraphicsItem* parent = nullptr)
-        : QObject(), QGraphicsItem(parent), scheme(colorScheme)
+        : QGraphicsObject(parent), scheme(colorScheme)
     {
         setAcceptHoverEvents(true);
         setColorScheme();

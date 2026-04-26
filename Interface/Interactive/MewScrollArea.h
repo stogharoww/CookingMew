@@ -15,19 +15,23 @@ class MewScrollArea : public QGraphicsObject
 public:
     explicit MewScrollArea(QRectF viewportRect, QGraphicsItem* parent = nullptr);
 
-    void setContent(QGraphicsItem* item);
+    void setContent(QGraphicsObject* item);
 
     QRectF boundingRect() const override;
     void paint(QPainter* painter,
                const QStyleOptionGraphicsItem* option,
                QWidget* widget) override;
 
+signals:
+    void openRecipe(int recipeID);
+
+
 protected:
     void wheelEvent(QGraphicsSceneWheelEvent* event) override;
 
 private:
     QRectF _viewport;
-    QGraphicsItem* _content = nullptr;
+    QGraphicsObject* _content = nullptr;
     qreal _scrollY = 0;
 };
 

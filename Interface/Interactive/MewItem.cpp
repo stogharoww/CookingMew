@@ -69,8 +69,20 @@ void MewItem::paint(QPainter* painter,
     painter->setBrush(_brush);
     painter->drawRect(boundingRect());
     //painter->drawRect(mainRect);
-    qDebug() << "_brush style =" << _brush.style();
+    //qDebug() << "_brush style =" << _brush.style();
 
+}
+
+void MewItem::setRecepieID(int id)
+{
+    _recepieID = id;
+}
+
+void MewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    Button::mouseReleaseEvent(event);
+    qDebug() << "mewItem clicked id: " << _recepieID;
+    emit clicked(_recepieID);
 }
 
 void MewItem::setContent(const QString& title,
