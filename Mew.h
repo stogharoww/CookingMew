@@ -3,9 +3,11 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include "Interface/ColorScheme.h"
-#include "Interface/Pages/HomePage.h"
+//#include "Interface/Pages/HomePage.h"
 #include <QResizeEvent>
 #include "Database/database.h"
+#include "Logic/PageChanger.h"
+
 
 
 
@@ -17,13 +19,15 @@ public:
     void meow();
 
 public slots:
-    void home();
-    void recepie();
+    void changeCurrentPage(PageID pageID);
+    void recepieCheck(int recID);
+    // void home();
+    // void recepie();
 
 private:
     ColorScheme *scheme;
     QGraphicsScene *scene;
-    HomePage *homePage;
+    //HomePage *homePage;
     void display_home_page();
     void resizeEvent(QResizeEvent* event);
     bool firstResizeDone = false;
@@ -32,6 +36,11 @@ private:
 
     void initPages();
     DataBase *db;
+
+    PageID currentPg = PageID::home;
+    int recepieID;
+
+    PageChanger *pages;
 
 };
 

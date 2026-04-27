@@ -8,6 +8,8 @@ MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *parent)
 {
     setAcceptHoverEvents(true);
 
+
+
     // фиксированная высота карточки
     mainRect = QRectF(4, 4, globalRect.width() - 8, 500);
     setBoundingRect(mainRect);
@@ -18,31 +20,60 @@ MewItem::MewItem(ColorScheme &scheme, QRectF &globalRect, QGraphicsItem *parent)
     groupItem->setFont(QFont("Arial", 22));
     groupItem->setPos(20, 20);
 
+    //groupItem->setAcceptedMouseButtons(Qt::NoButton);
+    //groupItem->setAcceptHoverEvents(false);
+
+
     // ====== TITLE ======
     titleItem = new QGraphicsTextItem(this);
     titleItem->setDefaultTextColor(_scheme.titleColor());
     titleItem->setFont(QFont("Arial", 14));
     titleItem->setPos(25, 60);
 
+
+    //titleItem->setAcceptedMouseButtons(Qt::NoButton);
+    //titleItem->setAcceptHoverEvents(false);
+
+
+
     // ====== INGREDIENTS ======
     ingredientsItem = new QGraphicsTextItem(this);
     ingredientsItem->setDefaultTextColor(_scheme.additionalColorGet());
     ingredientsItem->setFont(QFont("Arial", 12));
     ingredientsItem->setTextWidth(mainRect.width() - 40);
+
     ingredientsItem->setPos(25, 90);
+
+    ingredientsItem->setPos(mainRect.width() * 3 / 5 + 20, 90);
+    //ingredientsItem->setAcceptedMouseButtons(Qt::NoButton);
+    //ingredientsItem->setAcceptHoverEvents(false);
+
 
     // ====== TAG ======
     tagItem = new QGraphicsTextItem(this);
     tagItem->setDefaultTextColor(_scheme.tagColor());
     tagItem->setFont(QFont("Arial", 12));
+
     tagItem->setPos(groupItem->boundingRect().height() + 25, 25);
+
+    //tagItem->setPos(groupItem->boundingRect().height() + 25, 25);
+    //tagItem->setAcceptedMouseButtons(Qt::NoButton);
+    //tagItem->setAcceptHoverEvents(false);
+
 
     // ====== STEPS ======
     stepsItem = new QGraphicsTextItem(this);
     stepsItem->setDefaultTextColor(_scheme.textColorGet());
     stepsItem->setFont(QFont("Arial", 12));
+
     stepsItem->setTextWidth(mainRect.width() - 40);
     stepsItem->setPos(25, 250);
+
+    stepsItem->setTextWidth(mainRect.width() * 3 / 5 - 40);
+    stepsItem->setPos(25, 90);
+    //stepsItem->setAcceptedMouseButtons(Qt::NoButton);
+    //stepsItem->setAcceptHoverEvents(false);
+
 }
 
 void MewItem::paint(QPainter* painter,
@@ -63,6 +94,7 @@ void MewItem::paint(QPainter* painter,
 
     painter->setBrush(bg);
     painter->setPen(QPen(_scheme.borderGet(), 1));
+
     painter->drawRoundedRect(mainRect, 8, 8);
 }
 
@@ -76,6 +108,24 @@ void MewItem::hoverLeaveEvent(QGraphicsSceneHoverEvent*)
 {
     hovered = false;
     update();
+    //painter->setBrush(_brush);
+    //painter->drawRect(boundingRect());
+    //painter->drawRect(mainRect);
+    //qDebug() << "_brush style =" << _brush.style();
+
+}
+
+void MewItem::setRecepieID(int id)
+{
+    _recepieID = id;
+}
+
+void MewItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    Button::mouseReleaseEvent(event);
+    qDebug() << "mewItem clicked id: " << _recepieID;
+    emit clicked(_recepieID);
+
 }
 
 void MewItem::setContent(const QString& title,
@@ -89,6 +139,7 @@ void MewItem::setContent(const QString& title,
     ingredientsItem->setPlainText(ingredients);
     stepsItem->setPlainText(steps);
     tagItem->setPlainText("@" + tag);
+    tagItem->setPos(groupItem->boundingRect().width() + 25, 28);
 
     // ====== Обрезка ингредиентов ======
     if (ingredientsItem->boundingRect().height() > maxIngredientsHeight)
@@ -97,7 +148,7 @@ void MewItem::setContent(const QString& title,
         while (ingredientsItem->boundingRect().height() > maxIngredientsHeight && t.size() > 10)
         {
             t.chop(10);
-            ingredientsItem->setPlainText(t + "...");
+            ingredientsItem->setPlainText(t + "\n. . .");
         }
     }
 
@@ -108,7 +159,7 @@ void MewItem::setContent(const QString& title,
         while (stepsItem->boundingRect().height() > maxStepsHeight && t.size() > 10)
         {
             t.chop(10);
-            stepsItem->setPlainText(t + "...");
+            stepsItem->setPlainText(t + "\n. . .");
         }
     }
 }

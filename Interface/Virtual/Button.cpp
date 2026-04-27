@@ -30,7 +30,7 @@ void Button::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void Button::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
-    //qDebug() << "Button:: hover event";
+    qDebug() << "Button:: hover event";
     currentColor = hoverColor;
     _brush.setColor(currentColor);
     update();
@@ -51,12 +51,12 @@ void Button::change_main_color()
     // Меняем местами основной и дополнительный цвет
     baseColor = backgroundColor;
 
-    // Пересчитываем производные цвета
-    hoverColor   = baseColor.lighter(175);
-    pressedColor = baseColor.darker(125);
+    // Пересчитываем производные цвета (динамически)
+    hoverColor   = baseColor.lighter(120);
+    pressedColor = baseColor.darker(120);
 
     // Текущий цвет обновляем
-    currentColor = backgroundColor;
+    currentColor = baseColor;
 
     // Обновляем кисти
     _brush.setColor(currentColor);
@@ -85,27 +85,6 @@ void Button::set_not_text_bold()
 
 
 
-
-
-// void Button::change_color()
-// {
-//     _changed = !_changed;
-//     //_main_color = _main_color.toHsv();
-//     if (_changed == false){
-//         _main_color = _mc_tmp.lighter(100);
-//         _brush.setColor(_main_color);
-//     }
-//     if (_changed == true){
-//         if (_main_color == Qt::black)
-//             _main_color.setHsv(_main_color.hue(), _main_color.saturation(), 50);
-//         else
-//             _main_color = _mc_tmp.lighter(150);
-//         _brush.setColor(_main_color);
-//     }
-//     update();
-//     //setBrush(_brush);
-// }
-
 void Button::setBoundingRect(QRectF &rect)
 {
     _b_rect = rect;
@@ -113,15 +92,36 @@ void Button::setBoundingRect(QRectF &rect)
 
 void Button::setColorScheme()
 {
+    if (_isCustomColor)
+        return;
+
     QVector<QColor> colorScheme = scheme.getThemeColor();
-    if (colorScheme.size() < 4){
-        //qDebug() << "Button::setColorScheme: error: colorScheme must contain at least 4 elements";
+    if (colorScheme.size() < 6){
+        //qDebug() << "Button::setColorScheme: error: colorScheme must contain at least 6 elements";
         return;
     }
-    std::tie(baseColor, secondColor, hoverColor, pressedColor, backgroundColor) =
-        std::make_tuple(colorScheme[0], colorScheme[1], colorScheme[2], colorScheme[3], colorScheme[5]);
 
-    currentColor = baseColor;
+    // Базовые цвета из темы
+    secondColor     = colorScheme[1];
+    backgroundColor = colorScheme[5];
+    baseColor       = backgroundColor;
+
+    // Генерация hover/pressed динамически
+    auto normalize = [](QColor c){
+        if (c == Qt::black)
+            return QColor(1,1,1);
+        return c;
+    };
+
+    baseColor = normalize(baseColor);
+
+    hoverColor   = baseColor.lighter(120);
+    pressedColor = baseColor.darker(120);
+
+    // Текущий цвет = базовый
+    currentColor = backgroundColor;
+
+    // Обновляем кисти
     _brush.setColor(currentColor);
     _second_brush.setColor(secondColor);
 
@@ -141,4 +141,3 @@ void Button::setSecondBrush(QBrush &brush)
     _second_brush = brush;
     update();
 }
-

@@ -18,6 +18,9 @@ public:
 
     void addPost(MewItem* post);
 
+signals:
+    void openRecepie(int recepieID);
+
 private:
     ColorScheme _scheme;
     QRectF globalRect;

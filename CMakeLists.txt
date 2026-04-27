@@ -55,6 +55,13 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
         Interface/Items/FollowLent.h Interface/Items/FollowLent.cpp
         Interface/Pages/RecepiePage.h Interface/Pages/RecepiePage.cpp
         Logic/Logic.h
+        Logic/PageChanger.h Logic/PageChanger.cpp
+        Interface/Pages/ExplorePage.h Interface/Pages/ExplorePage.cpp
+        Interface/Pages/BookmarksPage.h Interface/Pages/BookmarksPage.cpp
+        Interface/Pages/IngredientsPage.h Interface/Pages/IngredientsPage.cpp
+        Interface/Pages/MyGroupsPage.h Interface/Pages/MyGroupsPage.cpp
+
+
 
     )
 # Define target properties for Android with Qt 6 as:

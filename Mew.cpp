@@ -3,7 +3,7 @@
 #include "Interface/Interactive/ButtonMew.h"
 #include <QGraphicsItem>
 #include <QSize>
-#include "Interface/Pages/HomePage.h"
+//#include "Interface/Pages/HomePage.h"
 #include <QTimer>
 #include <QApplication>
 #include "Database/database.h"
@@ -11,6 +11,10 @@
 
 
 Mew::Mew() {
+    viewport()->setMouseTracking(true);
+    setMouseTracking(true);
+
+
     scene = new QGraphicsScene(this);
     setScene(scene);
 
@@ -28,8 +32,12 @@ Mew::Mew() {
     setFixedSize(screen.size());
     showMaximized();
 
-    setUnvisibleAll();
-    home();
+    //setUnvisibleAll();
+
+    changeCurrentPage(PageID::home);
+    connect(pages->getCurrentPage(currentPg), &Page::changeCurrentPage, this, &Mew::changeCurrentPage);
+
+
 }
 
 
@@ -39,16 +47,35 @@ void Mew::meow()
     show();
 }
 
-void Mew::home()
+void Mew::changeCurrentPage(PageID pageID)
 {
     setUnvisibleAll();
-    homePage->setVisible(true);
+    disconnect(pages->getCurrentPage(currentPg), &Page::changeCurrentPage, this, &Mew::changeCurrentPage);
+    pages->getCurrentPage(pageID)->setVisible(true);
+    currentPg = pageID;
+    connect(pages->getCurrentPage(currentPg), &Page::changeCurrentPage, this, &Mew::changeCurrentPage);
+    //pages->getCurrentPage(pageID)->changeCurrentPage(pageID);
+
 }
 
-void Mew::recepie()
+void Mew::recepieCheck(int recID)
 {
-    setUnvisibleAll();
+
 }
+
+
+
+// void Mew::home()
+// {
+//     setUnvisibleAll();
+//     pages->getHomePage()->setVisible(true);
+//     //homePage->setVisible(true);
+// }
+
+// void Mew::recepie()
+// {
+//     setUnvisibleAll();
+// }
 
 
 
@@ -63,21 +90,34 @@ void Mew::resizeEvent(QResizeEvent* event)
     //setFixedSize(size);
     scene->setSceneRect(0, 0, size.width(), size.height());
 
-    if (homePage)
-        homePage->resize(size.width(), size.height());
+    if (!pages->getPages().isEmpty()){
+        pages->resize(size.width(), size.height());
+        //homePage->resize(size.width(), size.height());
+    }
 
 }
 
 void Mew::setUnvisibleAll()
 {
-    homePage->setVisible(false);
+    for (auto& page : pages->getPages()){
+        page->setVisible(false);
+    }
+    //homePage->setVisible(false);
 }
 
 void Mew::initPages()
 {
-    homePage = new HomePage(*scheme, QRectF(0,0,100,100));
+    pages = new PageChanger(*scheme, QRectF(0, 0, 100, 100));
+
+    //homePage = new HomePage(*scheme, QRectF(0,0,100,100));
     //page1->update_color_scheme(&scheme);
-    scene->addItem(homePage);
+    for (auto& page : pages->getPages()){
+        scene->addItem(page);
+    }
+    //scene->addItem(homePage);
+    connect(pages, &PageChanger::changePage,
+            this, &Mew::changeCurrentPage);
+
 
 
 }

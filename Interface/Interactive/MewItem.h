@@ -9,9 +9,10 @@
 
 class MewItem : public Button
 {
+    Q_OBJECT
 public:
     MewItem(ColorScheme& scheme, QRectF& globalRect, QGraphicsItem* parent = nullptr);
-
+    void setRecepieID(int id);
     void setContent(const QString& title,
                     const QString& group,
                     const QString& ingredients,
@@ -25,22 +26,25 @@ protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent* event) override;
     void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) override;
 
+signals:
+    void clicked(int recID);
+
 private:
+    int _recepieID = -1;
     ColorScheme& _scheme;
 
     QRectF mainRect;
 
-    // элементы карточки
     QGraphicsTextItem* titleItem;
     QGraphicsTextItem* groupItem;
     QGraphicsTextItem* ingredientsItem;
     QGraphicsTextItem* stepsItem;
     QGraphicsTextItem* tagItem;
 
-    // ограничения
     qreal maxIngredientsHeight = 120;
     qreal maxStepsHeight = 120;
 
-    // состояние наведения
     bool hovered = false;
+
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 };
