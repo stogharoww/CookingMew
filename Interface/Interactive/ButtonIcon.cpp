@@ -26,6 +26,7 @@ QString ButtonIcon::iconPath()
     case ButtonType::Bookmarks: return ":/icons/resourses/icons/bookmark.svg";
     case ButtonType::AddBtm: return ":/icons/resourses/icons/plus.svg";
     case ButtonType::Expand: return ":/icons/resourses/icons/expand.svg";
+    case ButtonType::Search: return ":/icons/resourses/icons/search.svg";
     }
 }
 

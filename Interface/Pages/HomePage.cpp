@@ -5,11 +5,13 @@
 #include <QPen>
 #include <QGraphicsRectItem>
 #include <QDebug>
+#include "../Interactive/SearchMew.h"
 
 HomePage::HomePage(ColorScheme& scheme, QRectF rect)
     : Page(scheme, rect, PageID::home),
     _scheme(scheme)
 {
+    //create_right_pannel();
 }
 
 void HomePage::btmForYouClicked()
@@ -101,7 +103,25 @@ void HomePage::create_main_pannel()
     connect(forYouScrollArea, &MewScrollArea::openRecipe,
             this, &HomePage::handleOpenRecipe);
 
+    ButtonIcon* buttonicon = new ButtonIcon(ButtonType::Search, _scheme,
+                                            mainRectItem, _scheme.additionalColorGet());
+    buttonicon->setPos(50, 50);
 
+}
+
+void HomePage::create_right_pannel()
+{
+    // создаём правую панель
+   /* rightRect = QRectF(0, 0, width - mainRect.width(), height);
+    rightRectItem = new QGraphicsRectItem(rightRect, this);
+    rightRectItem->setPos(mainRect.width(), 0);
+    rightRectItem->setPen(QPen(_scheme.borderGet(), 1));
+    rightRectItem->setBrush(_scheme.backgroundGet());
+*/
+    // === ДОБАВЛЯЕМ ПОИСКОВИК ===
+    SearchMew* search = new SearchMew(_scheme, this);
+    search->setPos(mainRect.width() + 350, 20);
+    search->setZValue(999);
 
 }
 

@@ -35,8 +35,10 @@ signals:
 
 private:
     void create_main_pannel() override;
+    void create_right_pannel() override;
 
     QRectF mainRect;
+    QRectF rightRect;
     QVector<Button*> __btms;   // кнопки верхней панели
     ColorScheme _scheme;
 
@@ -44,7 +46,7 @@ private:
     SquareTextBtm *followBtm;
     Line *followAndForYouLine;
     QGraphicsRectItem *mainRectItem;
-
+    QGraphicsRectItem *rightRectItem;
     MewScrollArea *forYouScrollArea;
 
     void moveLine(SquareTextBtm* btm);

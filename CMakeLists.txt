@@ -60,6 +60,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
         Interface/Pages/BookmarksPage.h Interface/Pages/BookmarksPage.cpp
         Interface/Pages/IngredientsPage.h Interface/Pages/IngredientsPage.cpp
         Interface/Pages/MyGroupsPage.h Interface/Pages/MyGroupsPage.cpp
+        Interface/Interactive/SearchMew.h Interface/Interactive/SearchMew.cpp
 
 
 

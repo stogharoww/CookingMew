@@ -14,8 +14,8 @@ enum class ButtonType {
     Comment,
     AddBtm,
     Bookmarks,
-    Expand
-
+    Expand,
+    Search
 };
 
 class ButtonIcon : public Button
