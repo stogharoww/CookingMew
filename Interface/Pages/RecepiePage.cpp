@@ -18,7 +18,6 @@ RecepiePage::RecepiePage(ColorScheme &scheme, QRectF rect)
 
 void RecepiePage::create_main_pannel()
 {
-    // Удаляем старую панель, если была
     if (mainRectItem) {
         delete mainRectItem;
         mainRectItem = nullptr;
@@ -48,7 +47,6 @@ void RecepiePage::create_main_pannel()
     scroll->setWidget(content);
     scroll->setWidgetResizable(true);
 
-    // Встраиваем в сцену
     QGraphicsProxyWidget* proxy = new QGraphicsProxyWidget(this);
     proxy->setWidget(scroll);
     proxy->setPos(leftRect.width(), 0);
@@ -68,8 +66,8 @@ void RecepiePage::create_main_pannel()
     }
 
     // ====== БАЗА ======
-    QSqlDatabase db = QSqlDatabase::database("cookbook_connection");
-    if (!db.isOpen())
+    QSqlDatabase dbsql = QSqlDatabase::database("cookbook_connection");
+    if (!dbsql.isOpen())
     {
         QLabel* err = new QLabel("DB not open!");
         err->setStyleSheet("color: #ff6666; font-size: 20px; font-weight: bold;");
@@ -90,7 +88,7 @@ void RecepiePage::create_main_pannel()
         "WHERE r.id = :id "
         "GROUP BY r.id;";
 
-    QSqlQuery q(db);
+    QSqlQuery q(dbsql);
     q.prepare(sql);
     q.bindValue(":id", _recipeID);
 
@@ -119,7 +117,7 @@ void RecepiePage::create_main_pannel()
     layout->addWidget(titleLabel);
 
     // ===== CATEGORY =====
-    QLabel* categoryLabel = new QLabel("Category: " + category);
+    QLabel* categoryLabel = new QLabel("Категория: " + category);
     categoryLabel->setStyleSheet(
         "color: " + _scheme.groupColor().name() + ";"
                                                   "font-size: 18px;"
@@ -133,7 +131,7 @@ void RecepiePage::create_main_pannel()
     layout->addWidget(line);
 
     // ===== INGREDIENTS =====
-    QLabel* ingHeader = new QLabel("Ingredients:");
+    QLabel* ingHeader = new QLabel("Ингредиенты:");
     ingHeader->setStyleSheet(
         "color: " + _scheme.additionalColorGet().name() + ";"
                                                           "font-size: 16px;"
@@ -150,7 +148,7 @@ void RecepiePage::create_main_pannel()
     layout->addWidget(ingredientsLabel);
 
     // ===== STEPS =====
-    QLabel* stepsHeader = new QLabel("Steps:");
+    QLabel* stepsHeader = new QLabel("Этапы приготовления:");
     stepsHeader->setStyleSheet(
         "color: " + _scheme.textColorGet().name() + ";"
                                                     "font-size: 16px;"
@@ -167,4 +165,89 @@ void RecepiePage::create_main_pannel()
     layout->addWidget(stepsLabel);
 
     layout->addStretch();
+
+    // ====== ПОЛЯ ДЛЯ РЕДАКТИРОВАНИЯ (скрыты до нажатия) ======
+    QLineEdit* titleEdit = new QLineEdit(title);
+    titleEdit->setVisible(false);
+    layout->addWidget(titleEdit);
+
+    QLineEdit* categoryEdit = new QLineEdit(category);
+    categoryEdit->setVisible(false);
+    layout->addWidget(categoryEdit);
+
+    QTextEdit* stepsEdit = new QTextEdit(steps);
+    stepsEdit->setVisible(false);
+    layout->addWidget(stepsEdit);
+
+    // ====== EDIT BUTTON ======
+    QPushButton* editBtn = new QPushButton("Редактировать");
+    editBtn->setStyleSheet("background:#205080; color:white; padding:8px;");
+    layout->addWidget(editBtn);
+
+    // ====== SAVE BUTTON (создаём заранее, но скрываем) ======
+    QPushButton* saveBtn = new QPushButton("Сохранить");
+    saveBtn->setStyleSheet("background:#208020; color:white; padding:8px;");
+    saveBtn->setVisible(false);
+    layout->addWidget(saveBtn);
+
+    // ====== ПЕРЕКЛЮЧЕНИЕ В РЕЖИМ РЕДАКТИРОВАНИЯ ======
+    connect(editBtn, &QPushButton::clicked, this, [=]() {
+
+        titleLabel->setVisible(false);
+        categoryLabel->setVisible(false);
+        stepsLabel->setVisible(false);
+
+        titleEdit->setVisible(true);
+        categoryEdit->setVisible(true);
+        stepsEdit->setVisible(true);
+
+        saveBtn->setVisible(true);
+        editBtn->setVisible(false);
+    });
+
+    // ====== СОХРАНЕНИЕ ======
+    connect(saveBtn, &QPushButton::clicked, this, [=]() {
+
+        if (!db) {
+            qDebug() << "ERROR: db is null!";
+            return;
+        }
+
+        Recipes r;
+        r.id = _recipeID;
+        r.title = titleEdit->text();
+        r.instructions = stepsEdit->toPlainText();
+        r.category_id = 1; // временно
+
+        if (db->RecipesTable().Update(r)) {
+            emit changeCurrentPage(PageID::recepie);
+        }
+    });
+
+    // ====== DELETE BUTTON ======
+    QPushButton* deleteBtn = new QPushButton("Удалить рецепт");
+    deleteBtn->setStyleSheet("background:#802020; color:white; padding:8px;");
+    layout->addWidget(deleteBtn);
+
+    connect(deleteBtn, &QPushButton::clicked, this, [this]() {
+
+        if (!db) {
+            qDebug() << "ERROR: db is null!";
+            return;
+        }
+
+        // Удаляем ингредиенты рецепта
+        for (auto& ri : db->RecipeIngredientsTable().Vector()) {
+            if (ri.recipe_id == _recipeID)
+                db->RecipeIngredientsTable().Delete(ri);
+        }
+
+        // Удаляем сам рецепт
+        Recipes rec;
+        rec.id = _recipeID;
+
+        if (db->RecipesTable().Delete(rec)) {
+            emit changeCurrentPage(PageID::home);
+        }
+    });
 }

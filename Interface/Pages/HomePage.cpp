@@ -11,7 +11,7 @@ HomePage::HomePage(ColorScheme& scheme, QRectF rect)
     : Page(scheme, rect, PageID::home),
     _scheme(scheme)
 {
-    //create_right_pannel();
+
 }
 
 void HomePage::btmForYouClicked()
@@ -38,6 +38,7 @@ void HomePage::btmFollowClicked()
 
 void HomePage::btmHeartClicked()
 {
+
     // пока пусто
 }
 
@@ -120,7 +121,7 @@ void HomePage::create_right_pannel()
 */
     // === ДОБАВЛЯЕМ ПОИСКОВИК ===
     SearchMew* search = new SearchMew(_scheme, this);
-    search->setPos(mainRect.width() + 350, 20);
+    search->setPos(mainRect.width() + 290, 2);
     search->setZValue(999);
 
 }

@@ -107,7 +107,7 @@ void Mew::setUnvisibleAll()
 
 void Mew::initPages()
 {
-    pages = new PageChanger(*scheme, QRectF(0, 0, 100, 100));
+    pages = new PageChanger(*scheme, QRectF(0, 0, 100, 100), db);
 
     //homePage = new HomePage(*scheme, QRectF(0,0,100,100));
     //page1->update_color_scheme(&scheme);

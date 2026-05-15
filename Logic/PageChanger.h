@@ -6,6 +6,7 @@
 #include "../Interface/Pages/HomePage.h"
 #include "../Interface/Pages/RecepiePage.h"
 #include <QObject>
+#include "../Database/database.h"
 
 
 
@@ -20,17 +21,18 @@
 //     post
 // };
 
-class PageChanger: public QObject
+class PageChanger : public QObject
 {
     Q_OBJECT
+    DataBase* db;
+
 public:
-    PageChanger() {};
-    PageChanger(ColorScheme &scheme, QRectF rect);
+    PageChanger(ColorScheme &scheme, QRectF rect, DataBase* db);
+
     QVector<Page*> getPages();
     void resize(int w, int h);
 
     Page* getBasePage();
-
     Page* getCurrentPage(PageID currentPage);
 
 public slots:
@@ -39,11 +41,11 @@ public slots:
 signals:
     void changePage(PageID id);
 
-
-
 private:
     QVector<Page*> pages;
     PageID currentPage = PageID::home;
-    RecepiePage *recepie = nullptr;
+
+   // DataBase* db;          // <--- ДОБАВЛЕНО
+    RecepiePage* recepie;  // <--- уже было
 };
 

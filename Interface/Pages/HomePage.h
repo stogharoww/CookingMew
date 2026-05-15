@@ -15,13 +15,14 @@
 #include "../Interactive/SquareTextBtm.h"
 #include "../Items/FollowLent.h"
 #include "../Interactive/MewScrollArea.h"
+#include "../../Database/database.h"
 
 class HomePage : public Page
 {
     Q_OBJECT
 public:
     HomePage(ColorScheme &scheme, QRectF rect);
-
+    void setDatabase(DataBase* database) { db = database; }
 public slots:
     void btmForYouClicked();
     void btmFollowClicked();
@@ -48,6 +49,8 @@ private:
     QGraphicsRectItem *mainRectItem;
     QGraphicsRectItem *rightRectItem;
     MewScrollArea *forYouScrollArea;
+
+    DataBase* db = nullptr;
 
     void moveLine(SquareTextBtm* btm);
     void connecting();
