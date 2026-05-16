@@ -50,13 +50,22 @@ void Mew::meow()
 void Mew::changeCurrentPage(PageID pageID)
 {
     setUnvisibleAll();
-    disconnect(pages->getCurrentPage(currentPg), &Page::changeCurrentPage, this, &Mew::changeCurrentPage);
-    pages->getCurrentPage(pageID)->setVisible(true);
-    currentPg = pageID;
-    connect(pages->getCurrentPage(currentPg), &Page::changeCurrentPage, this, &Mew::changeCurrentPage);
-    //pages->getCurrentPage(pageID)->changeCurrentPage(pageID);
 
+    disconnect(pages->getCurrentPage(currentPg),
+               &Page::changeCurrentPage,
+               this,
+               &Mew::changeCurrentPage);
+
+    currentPg = pageID;
+
+    Page* page = pages->getCurrentPage(pageID);
+    page->refresh();          // ← вот это добавляем
+    page->setVisible(true);
+
+    connect(page, &Page::changeCurrentPage,
+            this, &Mew::changeCurrentPage);
 }
+
 
 void Mew::recepieCheck(int recID)
 {

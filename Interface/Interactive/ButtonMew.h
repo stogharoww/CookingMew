@@ -23,6 +23,7 @@ public:
     /// \param text: текст
     ///
     void set_text(QString& text);
+    void setText(QString text);
 
     void paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*) override;
 

@@ -84,6 +84,11 @@ void ButtonMew::set_text(QString &text)
     update();
 }
 
+void ButtonMew::setText(QString text)
+{
+    set_text(text);
+}
+
 
 
 void ButtonMew::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)

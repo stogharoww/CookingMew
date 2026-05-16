@@ -1,16 +1,11 @@
 #include "RecepiePage.h"
-#include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QSqlDatabase>
 #include <QSqlError>
-
-#include <QScrollArea>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QFrame>
-#include <QGraphicsProxyWidget>
+#include <QFont>
 #include <QDebug>
 
-RecepiePage::RecepiePage(ColorScheme &scheme, QRectF rect)
+RecepiePage::RecepiePage(ColorScheme& scheme, QRectF rect)
     : Page(scheme, rect, PageID::recepie),
     _scheme(scheme)
 {
@@ -18,65 +13,33 @@ RecepiePage::RecepiePage(ColorScheme &scheme, QRectF rect)
 
 void RecepiePage::create_main_pannel()
 {
-    if (mainRectItem) {
-        delete mainRectItem;
-        mainRectItem = nullptr;
-    }
+    QRectF mainRect = QRectF(0, 0, width / 1.8, height);
+    mainRectItem = new QGraphicsRectItem(mainRect, this);
+    mainRectItem->setPos(leftRect.width(), 0);
+    mainRectItem->setPen(QPen(scheme.borderGet(), 1));
+    mainRectItem->setBrush(scheme.backgroundGet());
 
-    // ====== ПРОКСИ + SCROLL ======
-    QScrollArea* scroll = new QScrollArea();
-    scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    scroll->setFrameShape(QFrame::NoFrame);
-
-    scroll->setStyleSheet(
-        "QScrollArea { background: transparent; }"
-        "QWidget#content { background-color: #202020; }"
-        "QScrollBar:vertical { background: #202020; width: 10px; }"
-        "QScrollBar::handle:vertical { background: #505050; border-radius: 4px; }"
-        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; }"
-        );
-
-    QWidget* content = new QWidget();
-    content->setObjectName("content");
-
-    QVBoxLayout* layout = new QVBoxLayout(content);
-    layout->setContentsMargins(20, 20, 20, 20);
-    layout->setSpacing(16);
-
-    scroll->setWidget(content);
-    scroll->setWidgetResizable(true);
-
-    QGraphicsProxyWidget* proxy = new QGraphicsProxyWidget(this);
-    proxy->setWidget(scroll);
-    proxy->setPos(leftRect.width(), 0);
-    proxy->setMinimumWidth(width / 1.8);
-    proxy->setMaximumWidth(width / 1.8);
-    proxy->setMinimumHeight(height);
-    proxy->setMaximumHeight(height);
-
-    // ====== ЕСЛИ ID НЕ ЗАДАН ======
     if (_recipeID < 0)
     {
-        QLabel* noID = new QLabel("No recipe selected");
-        noID->setStyleSheet("color: #ff6666; font-size: 20px; font-weight: bold;");
-        layout->addWidget(noID);
-        layout->addStretch();
+        auto* msg = new QGraphicsTextItem("No recipe selected", mainRectItem);
+        msg->setDefaultTextColor(QColor("#ff6666"));
+        QFont f; f.setPointSize(20); f.setBold(true);
+        msg->setFont(f);
+        msg->setPos(20, 20);
         return;
     }
 
-    // ====== БАЗА ======
     QSqlDatabase dbsql = QSqlDatabase::database("cookbook_connection");
     if (!dbsql.isOpen())
     {
-        QLabel* err = new QLabel("DB not open!");
-        err->setStyleSheet("color: #ff6666; font-size: 20px; font-weight: bold;");
-        layout->addWidget(err);
-        layout->addStretch();
+        auto* msg = new QGraphicsTextItem("DB not open!", mainRectItem);
+        msg->setDefaultTextColor(QColor("#ff6666"));
+        QFont f; f.setPointSize(20); f.setBold(true);
+        msg->setFont(f);
+        msg->setPos(20, 20);
         return;
     }
 
-    // ====== SQL ======
     QString sql =
         "SELECT r.title, r.instructions, c.name AS category, "
         "GROUP_CONCAT(i.name || ' — ' || ri.amount || ' ' || u.short_name, '\n') AS ingredients "
@@ -94,10 +57,11 @@ void RecepiePage::create_main_pannel()
 
     if (!q.exec() || !q.next())
     {
-        QLabel* err = new QLabel("Recipe not found");
-        err->setStyleSheet("color: #ff6666; font-size: 20px; font-weight: bold;");
-        layout->addWidget(err);
-        layout->addStretch();
+        auto* msg = new QGraphicsTextItem("Recipe not found", mainRectItem);
+        msg->setDefaultTextColor(QColor("#ff6666"));
+        QFont f; f.setPointSize(20); f.setBold(true);
+        msg->setFont(f);
+        msg->setPos(20, 20);
         return;
     }
 
@@ -106,148 +70,225 @@ void RecepiePage::create_main_pannel()
     QString ingredients = q.value("ingredients").toString();
     QString steps       = q.value("instructions").toString();
 
-    // ===== TITLE =====
-    QLabel* titleLabel = new QLabel(title);
-    titleLabel->setWordWrap(true);
-    titleLabel->setStyleSheet(
-        "color: " + _scheme.titleColor().name() + ";"
-                                                  "font-size: 26px;"
-                                                  "font-weight: bold;"
-        );
-    layout->addWidget(titleLabel);
+    _ingredientsRaw = ingredients;
 
-    // ===== CATEGORY =====
-    QLabel* categoryLabel = new QLabel("Категория: " + category);
-    categoryLabel->setStyleSheet(
-        "color: " + _scheme.groupColor().name() + ";"
-                                                  "font-size: 18px;"
-        );
-    layout->addWidget(categoryLabel);
+    QRectF scrollRect(0, 0, mainRect.width(), mainRect.height());
+    scrollArea = new MewScrollArea(scrollRect, mainRectItem);
+    scrollArea->setPos(0, 0);
 
-    // ===== LINE =====
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setStyleSheet("color: #404040;");
-    layout->addWidget(line);
+    auto* root = new ContentRoot();
+    scrollArea->setContent(root);
 
-    // ===== INGREDIENTS =====
-    QLabel* ingHeader = new QLabel("Ингредиенты:");
-    ingHeader->setStyleSheet(
-        "color: " + _scheme.additionalColorGet().name() + ";"
-                                                          "font-size: 16px;"
-                                                          "font-weight: bold;"
-        );
-    layout->addWidget(ingHeader);
+    buildContent(root, title, category, ingredients, steps);
+}
 
-    QLabel* ingredientsLabel = new QLabel(ingredients);
-    ingredientsLabel->setWordWrap(true);
-    ingredientsLabel->setStyleSheet(
-        "color: " + _scheme.additionalColorGet().name() + ";"
-                                                          "font-size: 14px;"
-        );
-    layout->addWidget(ingredientsLabel);
+void RecepiePage::buildContent(ContentRoot* root,
+                               const QString& title,
+                               const QString& category,
+                               const QString& ingredients,
+                               const QString& steps)
+{
+    const qreal margin  = 20;
+    const qreal spacing = 14;
+    const qreal contentW = (width / 1.8) - 2 * margin;
 
-    // ===== STEPS =====
-    QLabel* stepsHeader = new QLabel("Этапы приготовления:");
-    stepsHeader->setStyleSheet(
-        "color: " + _scheme.textColorGet().name() + ";"
-                                                    "font-size: 16px;"
-                                                    "font-weight: bold;"
-        );
-    layout->addWidget(stepsHeader);
+    qreal y = margin;
 
-    QLabel* stepsLabel = new QLabel(steps);
-    stepsLabel->setWordWrap(true);
-    stepsLabel->setStyleSheet(
-        "color: " + _scheme.textColorGet().name() + ";"
-                                                    "font-size: 14px;"
-        );
-    layout->addWidget(stepsLabel);
+    // === TITLE ===
+    auto* titleItem = new QGraphicsTextItem(root);
+    {
+        QFont f; f.setPointSize(24); f.setBold(true);
+        titleItem->setFont(f);
+        titleItem->setDefaultTextColor(_scheme.titleColor());
+        titleItem->setTextWidth(contentW);
+        titleItem->setPlainText(title);
+        titleItem->setPos(margin, y);
+        y += titleItem->boundingRect().height() + spacing;
+    }
 
-    layout->addStretch();
+    // === CATEGORY ===
+    auto* categoryItem = new QGraphicsTextItem(root);
+    {
+        QFont f; f.setPointSize(16);
+        categoryItem->setFont(f);
+        categoryItem->setDefaultTextColor(_scheme.groupColor());
+        categoryItem->setTextWidth(contentW);
+        categoryItem->setPlainText("Категория: " + category);
+        categoryItem->setPos(margin, y);
+        y += categoryItem->boundingRect().height() + spacing;
+    }
 
-    // ====== ПОЛЯ ДЛЯ РЕДАКТИРОВАНИЯ (скрыты до нажатия) ======
-    QLineEdit* titleEdit = new QLineEdit(title);
+    // === STEPS HEADER ===
+    auto* stepsHeader = new QGraphicsTextItem(root);
+    {
+        QFont f; f.setPointSize(16); f.setBold(true);
+        stepsHeader->setFont(f);
+        stepsHeader->setDefaultTextColor(_scheme.textColorGet());
+        stepsHeader->setTextWidth(contentW);
+        stepsHeader->setPlainText("Этапы приготовления:");
+        stepsHeader->setPos(margin, y);
+        y += stepsHeader->boundingRect().height() + spacing;
+    }
+
+    // === STEPS TEXT ===
+    auto* stepsText = new QGraphicsTextItem(root);
+    {
+        QFont f; f.setPointSize(14);
+        stepsText->setFont(f);
+        stepsText->setDefaultTextColor(_scheme.textColorGet());
+        stepsText->setTextWidth(contentW);
+        stepsText->setPlainText(steps);
+        stepsText->setPos(margin, y);
+        y += stepsText->boundingRect().height() + spacing;
+    }
+
+    // === EDIT FIELDS (только название + шаги) ===
+    auto* titleEdit = new TextEditMew(_scheme, root);
+    titleEdit->setText(title);
+    titleEdit->setMultiline(false);
+    titleEdit->setAutoExpand(false);
+    titleEdit->setMinHeight(40);
+    titleEdit->setMaxWidth(contentW);
     titleEdit->setVisible(false);
-    layout->addWidget(titleEdit);
+    titleEdit->setPos(margin, titleItem->pos().y());
 
-    QLineEdit* categoryEdit = new QLineEdit(category);
-    categoryEdit->setVisible(false);
-    layout->addWidget(categoryEdit);
-
-    QTextEdit* stepsEdit = new QTextEdit(steps);
+    auto* stepsEdit = new TextEditMew(_scheme, root);
+    stepsEdit->setText(steps);
+    stepsEdit->setMultiline(true);
+    stepsEdit->setAutoExpand(true);
+    stepsEdit->setMinHeight(120);
+    stepsEdit->setMaxWidth(contentW);
     stepsEdit->setVisible(false);
-    layout->addWidget(stepsEdit);
+    stepsEdit->setPos(margin, stepsText->pos().y());
 
-    // ====== EDIT BUTTON ======
-    QPushButton* editBtn = new QPushButton("Редактировать");
-    editBtn->setStyleSheet("background:#205080; color:white; padding:8px;");
-    layout->addWidget(editBtn);
+    // === BUTTONS ===
+    auto* editBtn = new ButtonMew(_scheme, root);
+    editBtn->setText("Редактировать");
+    editBtn->setPos(margin, y);
 
-    // ====== SAVE BUTTON (создаём заранее, но скрываем) ======
-    QPushButton* saveBtn = new QPushButton("Сохранить");
-    saveBtn->setStyleSheet("background:#208020; color:white; padding:8px;");
+    auto* saveBtn = new ButtonMew(_scheme, root);
+    saveBtn->setText("Сохранить");
+    saveBtn->setPos(margin + 160, y);
     saveBtn->setVisible(false);
-    layout->addWidget(saveBtn);
 
-    // ====== ПЕРЕКЛЮЧЕНИЕ В РЕЖИМ РЕДАКТИРОВАНИЯ ======
-    connect(editBtn, &QPushButton::clicked, this, [=]() {
+    auto* deleteBtn = new ButtonMew(_scheme, root);
+    deleteBtn->setText("Удалить рецепт");
+    deleteBtn->setPos(margin + 320, y);
 
-        titleLabel->setVisible(false);
-        categoryLabel->setVisible(false);
-        stepsLabel->setVisible(false);
+    y += 60;
+
+    root->setBounds(QRectF(0, 0, contentW, y));
+
+    // === EDIT MODE ===
+    connect(editBtn, &ButtonMew::clicked, this, [=]() {
+        _editMode = true;
+
+        titleItem->setVisible(false);
+        stepsText->setVisible(false);
 
         titleEdit->setVisible(true);
-        categoryEdit->setVisible(true);
         stepsEdit->setVisible(true);
 
-        saveBtn->setVisible(true);
         editBtn->setVisible(false);
+        saveBtn->setVisible(true);
+
+        create_right_pannel();
     });
 
-    // ====== СОХРАНЕНИЕ ======
-    connect(saveBtn, &QPushButton::clicked, this, [=]() {
+    // === SAVE ===
+    connect(saveBtn, &ButtonMew::clicked, this, [=]() {
+        if (!db) return;
 
-        if (!db) {
-            qDebug() << "ERROR: db is null!";
-            return;
-        }
+        QString newTitle = titleEdit->text();
+        QString newSteps = stepsEdit->text();
+        QString newIngredients = ingredientsEdit ? ingredientsEdit->text() : _ingredientsRaw;
 
         Recipes r;
-        r.id = _recipeID;
-        r.title = titleEdit->text();
-        r.instructions = stepsEdit->toPlainText();
-        r.category_id = 1; // временно
+        r.id           = _recipeID;
+        r.title        = newTitle;
+        r.instructions = newSteps;
+        r.category_id  = 1;
 
-        if (db->RecipesTable().Update(r)) {
-            emit changeCurrentPage(PageID::recepie);
+        if (db->RecipesTable().Update(r))
+        {
+            _ingredientsRaw = newIngredients;
+
+            titleItem->setPlainText(newTitle);
+            stepsText->setPlainText(newSteps);
+
+            titleItem->setVisible(true);
+            stepsText->setVisible(true);
+
+            titleEdit->setVisible(false);
+            stepsEdit->setVisible(false);
+
+            saveBtn->setVisible(false);
+            editBtn->setVisible(true);
+
+            _editMode = false;
+            create_right_pannel();
         }
     });
 
-    // ====== DELETE BUTTON ======
-    QPushButton* deleteBtn = new QPushButton("Удалить рецепт");
-    deleteBtn->setStyleSheet("background:#802020; color:white; padding:8px;");
-    layout->addWidget(deleteBtn);
+    // === DELETE ===
+    connect(deleteBtn, &ButtonMew::clicked, this, [=]() {
+        if (!db) return;
 
-    connect(deleteBtn, &QPushButton::clicked, this, [this]() {
-
-        if (!db) {
-            qDebug() << "ERROR: db is null!";
-            return;
-        }
-
-        // Удаляем ингредиенты рецепта
-        for (auto& ri : db->RecipeIngredientsTable().Vector()) {
+        for (auto& ri : db->RecipeIngredientsTable().Vector())
             if (ri.recipe_id == _recipeID)
                 db->RecipeIngredientsTable().Delete(ri);
-        }
 
-        // Удаляем сам рецепт
         Recipes rec;
         rec.id = _recipeID;
 
-        if (db->RecipesTable().Delete(rec)) {
+        if (db->RecipesTable().Delete(rec))
             emit changeCurrentPage(PageID::home);
-        }
     });
+}
+
+void RecepiePage::create_right_pannel()
+{
+    QRectF rightRect = QRectF(0, 0,
+                              width - (width / 1.8) - leftRect.width(),
+                              height);
+
+    rightRectItem = new QGraphicsRectItem(rightRect, this);
+    rightRectItem->setPos(leftRect.width() + width / 1.8, 0);
+    rightRectItem->setPen(QPen(_scheme.borderGet(), 1));
+    rightRectItem->setBrush(_scheme.backgroundGet());
+
+    auto* header = new QGraphicsTextItem("Ингредиенты", rightRectItem);
+    QFont f; f.setPointSize(18); f.setBold(true);
+    header->setFont(f);
+    header->setDefaultTextColor(_scheme.additionalColorGet());
+    header->setPos(20, 20);
+
+    if (!_editMode)
+    {
+        auto* list = new QGraphicsTextItem(rightRectItem);
+        QFont f2; f2.setPointSize(14);
+        list->setFont(f2);
+        list->setDefaultTextColor(_scheme.textColorGet());
+        list->setTextWidth(rightRect.width() - 40);
+
+        QStringList lines = _ingredientsRaw.split("\n");
+        QString pretty;
+        for (auto& l : lines)
+            pretty += "• " + l + "\n";
+
+        list->setPlainText(pretty.trimmed());
+        list->setPos(20, 60);
+    }
+    else
+    {
+        ingredientsEdit = new TextEditMew(_scheme, rightRectItem);
+        ingredientsEdit->setText(_ingredientsRaw);
+        ingredientsEdit->setMultiline(true);
+        ingredientsEdit->setAutoExpand(true);
+        ingredientsEdit->setMinHeight(200);
+        ingredientsEdit->setMaxWidth(rightRect.width() - 40);
+        ingredientsEdit->setPos(20, 60);
+
+        rightRectItem->setPen(QPen(_scheme.additionalColorGet(), 3));
+    }
 }

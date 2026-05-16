@@ -62,6 +62,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
         Interface/Pages/MyGroupsPage.h Interface/Pages/MyGroupsPage.cpp
         Interface/Interactive/SearchMew.h Interface/Interactive/SearchMew.cpp
         Logic/FilterSearch.h Logic/FilterSearch.cpp
+        Interface/Interactive/TextEditMew.h Interface/Interactive/TextEditMew.cpp
 
 
 
