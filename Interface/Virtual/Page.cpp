@@ -7,13 +7,14 @@ Page::Page(ColorScheme& scheme, QRectF rect, PageID id)
     rect(rect),
     pageID(id)
 {
-    _btms.resize(7);
+    _btms.resize(2);
     width = rect.width();
     height = rect.height();
 
     textForBtm = {
-        "Home", "Explore", "Bookmarks", "Ingredients",
-        "My groups", "More", "Post"
+        "Home", "Settings"
+        //"Bookmarks", "Ingredients",
+        //"My groups", "More", "Post"
     };
 }
 
@@ -26,6 +27,22 @@ void Page::resize(int width, int height)
     update_pages();
 }
 
+QString Page::getPageID()
+{
+    switch (pageID)
+    {
+    case PageID::home:        return "home";
+    case PageID::explore:     return "explore";
+    case PageID::bookmarks:   return "bookmarks";
+    case PageID::ingredients: return "ingredients";
+    case PageID::myGroups:    return "myGroups";
+    case PageID::more:        return "more";
+    case PageID::post:        return "post";
+    case PageID::recepie:     return "recipe";
+    default: return "false";
+    }
+}
+
 void Page::update_pages()
 {
     auto items = childItems();
@@ -33,7 +50,7 @@ void Page::update_pages()
         delete item;
 
     _btms.clear();
-    _btms.resize(7);
+    _btms.resize(2);
 
     create_left_pannel();
     create_main_pannel();

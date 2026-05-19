@@ -14,7 +14,8 @@ enum class PageID{
     ingredients,
     myGroups,
     more,
-    post
+    post,
+    editPage
 };
 
 class Page : public QGraphicsObject
@@ -29,6 +30,7 @@ public:
     QRectF boundingRect() const override { return rect; }
     void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override {}
     void refresh() { update_pages(); }
+    QString getPageID();
 
 
 signals:
@@ -67,4 +69,6 @@ protected:
     QVector<QString> textForBtm;
 
     PageID pageID;
+
+
 };

@@ -1,12 +1,13 @@
 #include "TextEditMew.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QFocusEvent>
-#include <QDebug>
 
 TextEditMew::TextEditMew(ColorScheme& scheme, QGraphicsItem* parent)
     : QGraphicsObject(parent)
     , _scheme(scheme)
 {
+    _suppressEnsureVisible = true;
+
     setFlag(ItemIsFocusable, true);
 
     _backgroundColor     = _scheme.backgroundGet();
@@ -15,7 +16,8 @@ TextEditMew::TextEditMew(ColorScheme& scheme, QGraphicsItem* parent)
     _textColor           = _scheme.textColorGet();
     _placeholderColor    = QColor(150, 150, 150);
 
-    _bounds = QRectF(0, 0, _maxWidth, _minHeight);
+    _currentHeight = _minHeight;
+    _bounds = QRectF(0, 0, _maxWidth, _currentHeight);
 
     _cursorTimer = new QTimer(this);
     connect(_cursorTimer, &QTimer::timeout,
@@ -25,59 +27,94 @@ TextEditMew::TextEditMew(ColorScheme& scheme, QGraphicsItem* parent)
 
 QRectF TextEditMew::boundingRect() const
 {
-    return _bounds.adjusted(-1, -1, 1, 1);
+    return QRectF(0, 0, _maxWidth, _currentHeight)
+    .adjusted(-_borderWidth, -_borderWidth,
+              _borderWidth,  _borderWidth);
 }
 
-void TextEditMew::paint(QPainter* painter,
+void TextEditMew::paint(QPainter* p,
                         const QStyleOptionGraphicsItem*,
                         QWidget*)
 {
-    painter->setRenderHint(QPainter::Antialiasing, true);
+    p->setRenderHint(QPainter::Antialiasing, true);
+    // if (_scrollEnabled)
+    //     p->translate(0, -_scrollOffset);
+
+
+    QRectF br = boundingRect();
+    QRectF r = br.adjusted(
+        _borderWidth / 2.0,
+        _borderWidth / 2.0,
+        -_borderWidth / 2.0,
+        -_borderWidth / 2.0
+        );
 
     // фон
-    painter->setBrush(_backgroundColor);
-    painter->setPen(QPen(_hasFocus ? _focusedBorderColor : _borderColor, 2));
-    painter->drawRoundedRect(_bounds, 10, 10);
+    p->setBrush(_backgroundColor);
+    p->setPen(Qt::NoPen);
+    p->drawRoundedRect(r, 10, 10);
 
-    // текст
+    // рамка
+    p->setPen(QPen(_hasFocus ? _focusedBorderColor : _borderColor, _borderWidth));
+    p->setBrush(Qt::NoBrush);
+    p->drawRoundedRect(r, 10, 10);
+
+    // область текста
+    QRectF textRect = r.adjusted(
+        _padding,
+        _padding,
+        -_padding,
+        -_padding
+        );
+
     QFont font;
-    painter->setFont(font);
+    p->setFont(font);
     QFontMetricsF fm(font);
 
-    QRectF textRect = _bounds.adjusted(_padding, _padding,
-                                       -_padding, -_padding);
+    // клип + скролл
+    p->save();
+    p->setClipRect(textRect);
+    p->translate(0, -_scrollOffset);
 
-    painter->setClipRect(textRect);
+    QStringList lines = _text.split('\n');
+    if (lines.isEmpty())
+        lines << QString();
 
-    if (_text.isEmpty() && !_hasFocus && !_placeholder.isEmpty()) {
-        painter->setPen(_placeholderColor);
-        painter->drawText(textRect.topLeft(), _placeholder);
-    } else {
-        painter->setPen(_textColor);
+    qreal y = textRect.top() + fm.ascent();
 
-        QStringList lines = _text.split('\n');
-        qreal y = textRect.top() + fm.ascent();
-
-        if (lines.isEmpty())
-            lines << QString();
-
-        for (const QString& line : lines) {
-            painter->drawText(QPointF(textRect.left(), y), line);
+    if (_text.isEmpty() && !_hasFocus && !_placeholder.isEmpty())
+    {
+        p->setPen(_placeholderColor);
+        p->drawText(QPointF(textRect.left(), y), _placeholder);
+    }
+    else
+    {
+        p->setPen(_textColor);
+        for (const QString& line : lines)
+        {
+            p->drawText(QPointF(textRect.left(), y), line);
             y += fm.height();
         }
     }
 
     // курсор
-    if (_hasFocus && _cursorVisible) {
-        QPointF cursorPt = cursorPositionToPoint(_cursorPos);
-        if (textRect.contains(cursorPt)) {
-            painter->setPen(QPen(_textColor, 1));
-            painter->drawLine(cursorPt.x(),
-                              cursorPt.y() - fm.ascent(),
-                              cursorPt.x(),
-                              cursorPt.y() + fm.descent());
+    if (_hasFocus && _cursorVisible)
+    {
+        QPointF pt = cursorPositionToPoint(_cursorPos);
+        if (pt.y() >= textRect.top() &&
+            pt.y() <= textRect.bottom() + _scrollOffset)
+        {
+            p->setPen(QPen(_textColor, 1));
+            p->drawLine(
+                pt.x(),
+                pt.y() - fm.ascent(),
+                pt.x(),
+                pt.y() + fm.descent()
+                );
         }
     }
+
+    p->restore();
 }
 
 void TextEditMew::setText(const QString& text)
@@ -105,14 +142,33 @@ void TextEditMew::setMultiline(bool enabled)
     _multiline = enabled;
 }
 
+void TextEditMew::setSingleLine(bool enabled)
+{
+    _multiline = !enabled;
+}
+
 void TextEditMew::setAutoExpand(bool enabled)
 {
     _autoExpand = enabled;
+    updateLayout();
+}
+
+void TextEditMew::setMaxChars(int n)
+{
+    _maxChars = n;
 }
 
 void TextEditMew::setMinHeight(qreal h)
 {
     _minHeight = h;
+    if (_currentHeight < _minHeight)
+        _currentHeight = _minHeight;
+    updateLayout();
+}
+
+void TextEditMew::setMaxHeight(qreal h)
+{
+    _maxHeight = h;
     updateLayout();
 }
 
@@ -122,78 +178,111 @@ void TextEditMew::setMaxWidth(qreal w)
     updateLayout();
 }
 
-void TextEditMew::keyPressEvent(QKeyEvent* event)
+qreal TextEditMew::textHeight() const
 {
-    QString t = event->text();
+    QFont font;
+    QFontMetricsF fm(font);
 
-    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
-        if (_multiline) {
+    qreal h = 0;
+    for (const auto& line : _text.split('\n'))
+        h += fm.height();
+
+    return h + 2 * _padding; // без рамки, это чисто текстовая высота
+}
+
+void TextEditMew::keyPressEvent(QKeyEvent* e)
+{
+    QString t = e->text();
+
+    if (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)
+    {
+        if (_multiline)
             insertText("\n");
-        } else {
+        else
             emit submitted(_text);
-        }
         return;
     }
 
-    switch (event->key()) {
-    case Qt::Key_Backspace:
-        deletePreviousChar();
-        return;
-    case Qt::Key_Delete:
-        deleteNextChar();
-        return;
-    case Qt::Key_Left:
-        moveCursorLeft(false);
-        return;
-    case Qt::Key_Right:
-        moveCursorRight(false);
-        return;
-    case Qt::Key_Home:
-        moveCursorToStart();
-        return;
-    case Qt::Key_End:
-        moveCursorToEnd();
-        return;
-    default:
-        break;
+    switch (e->key())
+    {
+    case Qt::Key_Backspace: deletePreviousChar(); return;
+    case Qt::Key_Delete:    deleteNextChar();     return;
+    case Qt::Key_Left:      moveCursorLeft(false); return;
+    case Qt::Key_Right:     moveCursorRight(false); return;
+    case Qt::Key_Home:      moveCursorToStart(); return;
+    case Qt::Key_End:       moveCursorToEnd();   return;
     }
 
-    if (!t.isEmpty()) {
+    if (!t.isEmpty())
+    {
         QChar c = t[0];
-        if (c.isPrint() || c.isSpace()) {
-            insertText(t);
+
+        if (_maxChars > 0 && _text.size() >= _maxChars)
+        {
+            if (e->key() != Qt::Key_Backspace &&
+                e->key() != Qt::Key_Delete &&
+                e->key() != Qt::Key_Left &&
+                e->key() != Qt::Key_Right &&
+                e->key() != Qt::Key_Home &&
+                e->key() != Qt::Key_End)
+            {
+                return;
+            }
         }
+
+        if (c.isPrint() || c.isSpace())
+            insertText(t);
     }
 }
 
-void TextEditMew::mousePressEvent(QGraphicsSceneMouseEvent* event)
+void TextEditMew::mousePressEvent(QGraphicsSceneMouseEvent* e)
 {
     setFocus(Qt::MouseFocusReason);
-    QPointF p = event->pos();
-    _cursorPos = positionFromPoint(p);
+    _cursorPos = positionFromPoint(e->pos() + QPointF(0, _scrollOffset));
     ensureCursorVisible();
     update();
 }
 
-void TextEditMew::focusInEvent(QFocusEvent* event)
+void TextEditMew::focusInEvent(QFocusEvent*)
 {
-    Q_UNUSED(event);
     _hasFocus = true;
     _cursorVisible = true;
     update();
 }
 
-void TextEditMew::focusOutEvent(QFocusEvent* event)
+void TextEditMew::focusOutEvent(QFocusEvent*)
 {
-    Q_UNUSED(event);
     _hasFocus = false;
     _cursorVisible = false;
     update();
 }
 
+void TextEditMew::wheelEvent(QGraphicsSceneWheelEvent* e)
+{
+    if (!_scrollEnabled) return;
+
+    qreal fullTextH = textHeight();
+    qreal visibleH  = _currentHeight - 2 * _padding;
+
+    if (fullTextH <= visibleH)
+        return;
+
+    _scrollOffset -= e->delta() / 4.0;
+
+    if (_scrollOffset < 0)
+        _scrollOffset = 0;
+
+    qreal maxOffset = fullTextH - visibleH;
+    if (_scrollOffset > maxOffset)
+        _scrollOffset = maxOffset;
+
+    update();
+}
+
 void TextEditMew::toggleCursorVisible()
 {
-    if (_hasFocus) {
+    if (_hasFocus)
+    {
         _cursorVisible = !_cursorVisible;
         update();
     }
@@ -201,47 +290,41 @@ void TextEditMew::toggleCursorVisible()
 
 void TextEditMew::updateLayout()
 {
-    QFont font;
-    QFontMetricsF fm(font);
-
-    QStringList lines = _text.split('\n');
-    if (lines.isEmpty())
-        lines << QString();
-
-    int lineCount = lines.size();
-    qreal textHeight = lineCount * fm.height();
-
-    qreal h = textHeight + 2 * _padding;
-    if (h < _minHeight)
-        h = _minHeight;
+    qreal fullTextH = textHeight();
+    qreal newH = fullTextH;
 
     if (!_autoExpand)
-        h = _minHeight;
+        newH = _minHeight;
 
-    qreal newHeight = h;
-    if (newHeight > _maxSafeHeight)
-        newHeight = _maxSafeHeight;
+    if (newH < _minHeight)
+        newH = _minHeight;
+
+    if (newH > _maxHeight)
+        newH = _maxHeight;
+
+    qreal oldH = _currentHeight;
 
     prepareGeometryChange();
-    _bounds = QRectF(0, 0, _maxWidth, newHeight);
-}
+    _currentHeight = newH;
+    _bounds = QRectF(0, 0, _maxWidth, _currentHeight);
 
-void TextEditMew::ensureCursorVisible()
-{
-    // пока ничего не делаем — видимая область = весь виджет
+    if (!qFuzzyCompare(oldH, _currentHeight))
+        emit heightChanged(_currentHeight);
+
+    ensureCursorVisible();
+    emit cursorMoved(cursorPositionToPoint(_cursorPos).y());
+
+    update();
+    _suppressEnsureVisible = false;
+
 }
 
 void TextEditMew::insertText(const QString& t)
 {
-    if (_cursorPos < 0 || _cursorPos > _text.size())
-        _cursorPos = _text.size();
-
     _text.insert(_cursorPos, t);
     _cursorPos += t.size();
-
     updateLayout();
     emit textChanged(_text);
-    update();
 }
 
 void TextEditMew::deletePreviousChar()
@@ -251,10 +334,8 @@ void TextEditMew::deletePreviousChar()
 
     _text.remove(_cursorPos - 1, 1);
     _cursorPos--;
-
     updateLayout();
     emit textChanged(_text);
-    update();
 }
 
 void TextEditMew::deleteNextChar()
@@ -263,27 +344,25 @@ void TextEditMew::deleteNextChar()
         return;
 
     _text.remove(_cursorPos, 1);
-
     updateLayout();
     emit textChanged(_text);
-    update();
 }
 
-void TextEditMew::moveCursorLeft(bool select)
+void TextEditMew::moveCursorLeft(bool)
 {
-    Q_UNUSED(select);
     if (_cursorPos > 0)
         _cursorPos--;
     ensureCursorVisible();
+    emit cursorMoved(cursorPositionToPoint(_cursorPos).y());
     update();
 }
 
-void TextEditMew::moveCursorRight(bool select)
+void TextEditMew::moveCursorRight(bool)
 {
-    Q_UNUSED(select);
     if (_cursorPos < _text.size())
         _cursorPos++;
     ensureCursorVisible();
+    emit cursorMoved(cursorPositionToPoint(_cursorPos).y());
     update();
 }
 
@@ -291,6 +370,7 @@ void TextEditMew::moveCursorToEnd()
 {
     _cursorPos = _text.size();
     ensureCursorVisible();
+    emit cursorMoved(cursorPositionToPoint(_cursorPos).y());
     update();
 }
 
@@ -298,24 +378,52 @@ void TextEditMew::moveCursorToStart()
 {
     _cursorPos = 0;
     ensureCursorVisible();
+    emit cursorMoved(cursorPositionToPoint(_cursorPos).y());
     update();
 }
 
-void TextEditMew::handleReturn()
+void TextEditMew::ensureCursorVisible()
 {
-    if (_multiline) {
-        insertText("\n");
-    } else {
-        emit submitted(_text);
-    }
-}
+    if (!_scrollEnabled) { _scrollOffset = 0; return; }
 
-void TextEditMew::clampHeightIfTooBig()
-{
-    if (_bounds.height() > _maxSafeHeight) {
-        _bounds.setHeight(_maxSafeHeight);
-        qDebug() << "[TextEditMew] WARNING: height clamped, text too large";
+    if (_suppressEnsureVisible)
+    {
+        _scrollOffset = 0;
+        return;
     }
+
+
+    QFont font;
+    QFontMetricsF fm(font);
+
+    qreal fullTextH = textHeight();
+    qreal visibleH  = _currentHeight - 2 * _padding;
+
+    if (fullTextH <= visibleH)
+    {
+        _scrollOffset = 0;
+        return;
+    }
+
+    QPointF pt = cursorPositionToPoint(_cursorPos);
+    qreal cy = pt.y();
+
+    qreal deadZone = fm.height(); // высота одной строки
+
+    // вверх
+    if (cy < _scrollOffset + _padding)
+        _scrollOffset = cy - _padding;
+
+    // вниз (НО с мёртвой зоной)
+    if (cy > _scrollOffset + visibleH - deadZone)
+        _scrollOffset = cy - (visibleH - deadZone);
+
+    if (_scrollOffset < 0)
+        _scrollOffset = 0;
+
+    qreal maxOffset = fullTextH - visibleH;
+    if (_scrollOffset > maxOffset)
+        _scrollOffset = maxOffset;
 }
 
 int TextEditMew::positionFromPoint(const QPointF& p) const
@@ -323,37 +431,32 @@ int TextEditMew::positionFromPoint(const QPointF& p) const
     QFont font;
     QFontMetricsF fm(font);
 
-    QRectF textRect = _bounds.adjusted(_padding, _padding,
-                                       -_padding, -_padding);
+    QRectF textRect = QRectF(0, 0, _maxWidth, _currentHeight)
+                          .adjusted(_padding, _padding,
+                                    -_padding, -_padding);
 
-    QString text = _text;
-    if (text.isEmpty())
-        return 0;
-
-    QStringList lines = text.split('\n');
+    QStringList lines = _text.split('\n');
     if (lines.isEmpty())
         lines << QString();
 
     qreal y = textRect.top();
-    qreal lineHeight = fm.height();
     int pos = 0;
 
-    for (int i = 0; i < lines.size(); ++i) {
-        const QString& line = lines[i];
-
-        if (p.y() >= y && p.y() <= y + lineHeight) {
+    for (const QString& line : lines)
+    {
+        if (p.y() >= y && p.y() <= y + fm.height())
+        {
             qreal x = textRect.left();
-            for (int j = 0; j <= line.size(); ++j) {
-                QString sub = line.left(j);
-                qreal w = fm.horizontalAdvance(sub);
-                if (p.x() < x + w)
-                    return pos + j;
+            for (int i = 0; i <= line.size(); ++i)
+            {
+                if (fm.horizontalAdvance(line.left(i)) + x > p.x())
+                    return pos + i;
             }
             return pos + line.size();
         }
 
-        y += lineHeight;
-        pos += line.size() + 1; // + '\n'
+        y += fm.height();
+        pos += line.size() + 1;
     }
 
     return _text.size();
@@ -364,34 +467,27 @@ QPointF TextEditMew::cursorPositionToPoint(int pos) const
     QFont font;
     QFontMetricsF fm(font);
 
-    QRectF textRect = _bounds.adjusted(_padding, _padding,
-                                       -_padding, -_padding);
+    QRectF textRect = QRectF(0, 0, _maxWidth, _currentHeight)
+                          .adjusted(_padding, _padding,
+                                    -_padding, -_padding);
 
-    QString text = _text;
-    if (text.isEmpty())
-        return QPointF(textRect.left(), textRect.top() + fm.ascent());
-
-    QStringList lines = text.split('\n');
+    QStringList lines = _text.split('\n');
     if (lines.isEmpty())
         lines << QString();
 
-    int curPos = 0;
+    int cur = 0;
     qreal y = textRect.top() + fm.ascent();
-    qreal lineHeight = fm.height();
 
-    for (int i = 0; i < lines.size(); ++i) {
-        const QString& line = lines[i];
-        int lineLen = line.size();
-
-        if (pos <= curPos + lineLen) {
-            int offsetInLine = pos - curPos;
-            QString sub = line.left(offsetInLine);
-            qreal w = fm.horizontalAdvance(sub);
+    for (const QString& line : lines)
+    {
+        if (pos <= cur + line.size())
+        {
+            qreal w = fm.horizontalAdvance(line.left(pos - cur));
             return QPointF(textRect.left() + w, y);
         }
 
-        curPos += lineLen + 1;
-        y += lineHeight;
+        cur += line.size() + 1;
+        y += fm.height();
     }
 
     return QPointF(textRect.left(), y);

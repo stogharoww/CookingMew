@@ -7,6 +7,8 @@
 #include "../Interface/Pages/RecepiePage.h"
 #include <QObject>
 #include "../Database/database.h"
+#include "../Interface/Pages/EditRecipePage.h"
+
 
 
 
@@ -37,6 +39,7 @@ public:
 
 public slots:
     void openRecipe(int recipeID);
+    void backFromEdit(int recipeID);
 
 signals:
     void changePage(PageID id);
@@ -46,6 +49,7 @@ private:
     PageID currentPage = PageID::home;
 
    // DataBase* db;          // <--- ДОБАВЛЕНО
-    RecepiePage* recepie;  // <--- уже было
+    RecepiePage* recepie;
+    EditRecipePage *editRecipePage;
 };
 

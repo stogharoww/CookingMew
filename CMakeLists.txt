@@ -63,6 +63,9 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
         Interface/Interactive/SearchMew.h Interface/Interactive/SearchMew.cpp
         Logic/FilterSearch.h Logic/FilterSearch.cpp
         Interface/Interactive/TextEditMew.h Interface/Interactive/TextEditMew.cpp
+        Interface/Pages/EditRecipePage.h Interface/Pages/EditRecipePage.cpp
+        Interface/Items/IngredientRow.h Interface/Items/IngredientRow.cpp
+        Interface/Interactive/MewComboBox.h Interface/Interactive/MewComboBox.cpp
 
 
 

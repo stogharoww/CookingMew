@@ -1,10 +1,10 @@
 #pragma once
-
 #include <QGraphicsObject>
 #include <QPainter>
 #include <QKeyEvent>
 #include <QTimer>
 #include <QFontMetricsF>
+#include <QGraphicsSceneWheelEvent>
 #include "../ColorScheme.h"
 
 class TextEditMew : public QGraphicsObject
@@ -27,31 +27,42 @@ public:
     void setPlaceholder(const QString& text);
 
     // Режимы
-    void setMultiline(bool enabled);
-    void setAutoExpand(bool enabled);
+    void setMultiline(bool enabled);      // true = многострочный
+    void setSingleLine(bool enabled);     // удобный алиас
+    void setAutoExpand(bool enabled);     // если false — фиксированная высота
+    void setMaxChars(int n);              // -1 = без лимита
 
     // Геометрия
     void setMinHeight(qreal h);
+    void setMaxHeight(qreal h);
     void setMaxWidth(qreal w);
+
+    // Высота текста (полная, без учёта maxHeight)
+    qreal textHeight() const;
+
+    void setScrollEnabled(bool enabled) { _scrollEnabled = enabled; }
+
+
 
 signals:
     void textChanged(const QString& text);
     void submitted(const QString& text);
+    void heightChanged(qreal newHeight);
+    void cursorMoved(qreal cursorY);
 
 protected:
-    // События
     void keyPressEvent(QKeyEvent* event) override;
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
     void focusInEvent(QFocusEvent* event) override;
     void focusOutEvent(QFocusEvent* event) override;
+    void wheelEvent(QGraphicsSceneWheelEvent* event) override;
 
 private slots:
     void toggleCursorVisible();
 
 private:
-    // Внутренние методы
+    bool _scrollEnabled = true;
     void updateLayout();
-    void ensureCursorVisible();
     void insertText(const QString& t);
     void deletePreviousChar();
     void deleteNextChar();
@@ -59,35 +70,38 @@ private:
     void moveCursorRight(bool select);
     void moveCursorToEnd();
     void moveCursorToStart();
-    void handleReturn();
-    void clampHeightIfTooBig();
+    void ensureCursorVisible();
+
+    bool _suppressEnsureVisible = true;
+
 
     int     positionFromPoint(const QPointF& p) const;
     QPointF cursorPositionToPoint(int pos) const;
 
-    // Состояние текста
+    // состояние
     QString _text;
     QString _placeholder;
-    bool    _multiline   = true;
-    bool    _autoExpand  = true;
 
-    // Курсор и выделение
+    bool _multiline   = true;
+    bool _autoExpand  = true;
+
     int  _cursorPos      = 0;
-    int  _selectionStart = -1;
-    int  _selectionEnd   = -1;
     bool _cursorVisible  = true;
     QTimer* _cursorTimer = nullptr;
 
-    // Геометрия
+    // геометрия
     QRectF _bounds;
     qreal  _padding      = 10.0;
     qreal  _minHeight    = 40.0;
+    qreal  _maxHeight    = 200.0;
     qreal  _maxWidth     = 300.0;
+    qreal  _currentHeight = 40.0;
 
-    // Ограничение по высоте
-    qreal  _maxSafeHeight = 4000.0;
+    // скролл
+    qreal _scrollOffset = 0.0;
 
-    // Стиль
+    // оформление
+    qreal _borderWidth = 2.0;
     ColorScheme& _scheme;
     QColor _borderColor;
     QColor _focusedBorderColor;
@@ -96,4 +110,6 @@ private:
     QColor _placeholderColor;
 
     bool _hasFocus = false;
+
+    int _maxChars = -1; // -1 = без лимита
 };

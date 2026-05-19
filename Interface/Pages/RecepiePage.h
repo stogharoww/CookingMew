@@ -2,65 +2,62 @@
 
 #include "../Virtual/Page.h"
 #include "../ColorScheme.h"
-#include "../Interactive/MewScrollArea.h"
-#include "../Interactive/TextEditMew.h"
 #include "../Interactive/ButtonMew.h"
+#include "../Interactive/MewScrollArea.h"
 #include <QGraphicsTextItem>
 #include <QGraphicsRectItem>
 #include "../../Database/database.h"
+#include <QVector>
 
 class RecepiePage : public Page
 {
     Q_OBJECT
+
 public:
     RecepiePage(ColorScheme& scheme, QRectF rect);
 
     void setRecipeID(int id)        { _recipeID = id; }
     void setDatabase(DataBase* db_) { db = db_; }
 
-private:
+    void update_pages() override;
+
+
+    QVector<QString> getContent();
+
+protected:
     void create_main_pannel() override;
     void create_right_pannel() override;
 
-    class ContentRoot : public QGraphicsObject
-    {
-    public:
-        explicit ContentRoot(QGraphicsItem* parent = nullptr)
-            : QGraphicsObject(parent) {}
-
-        QRectF boundingRect() const override { return _bounds; }
-        void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override {}
-
-        void setBounds(const QRectF& r)
-        {
-            prepareGeometryChange();
-            _bounds = r;
-        }
-
-    private:
-        QRectF _bounds;
-    };
-
-    void buildContent(ContentRoot* root,
-                      const QString& title,
-                      const QString& category,
-                      const QString& ingredients,
-                      const QString& steps);
-
-private:
-    DataBase* db = nullptr;
+    DataBase*   db          = nullptr;
     ColorScheme _scheme;
+
     int _recipeID = -1;
 
-    bool _editMode = false;
+    // данные рецепта
+    QString _title;
+    QString _category;
+    QString _steps;
+    QString _ingredients;
 
+    // левая панель
     QGraphicsRectItem* mainRectItem = nullptr;
-    QGraphicsRectItem* rightRectItem = nullptr;
 
-    MewScrollArea* scrollArea = nullptr;
+    QGraphicsTextItem* titleItem    = nullptr;
+    QGraphicsTextItem* categoryItem = nullptr;
+    QGraphicsTextItem* stepsText    = nullptr;
 
-    QString _ingredientsRaw;
+    AutoGrowBox*   stepsBox     = nullptr;
+    MewScrollArea* stepsScroll  = nullptr;
 
-    // для режима редактирования справа
-    TextEditMew* ingredientsEdit = nullptr;
+    ButtonMew* editBtn   = nullptr;
+    ButtonMew* deleteBtn = nullptr;
+
+    // правая панель
+    QGraphicsRectItem* rightRectItem       = nullptr;
+    QGraphicsTextItem* ingredientsViewText = nullptr;
+
+    AutoGrowBox*   ingredientsBox    = nullptr;
+    MewScrollArea* ingredientsScroll = nullptr;
+    AutoGrowBox* titleBox = nullptr;
+    MewScrollArea* titleScroll = nullptr;
 };

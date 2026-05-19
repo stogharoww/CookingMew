@@ -104,9 +104,9 @@ void HomePage::create_main_pannel()
     connect(forYouScrollArea, &MewScrollArea::openRecipe,
             this, &HomePage::handleOpenRecipe);
 
-    ButtonIcon* buttonicon = new ButtonIcon(ButtonType::Search, _scheme,
-                                            mainRectItem, _scheme.additionalColorGet());
-    buttonicon->setPos(50, 50);
+    // ButtonIcon* buttonicon = new ButtonIcon(ButtonType::Search, _scheme,
+    //                                         mainRectItem, _scheme.additionalColorGet());
+    // buttonicon->setPos(50, 50);
 
 }
 
@@ -119,10 +119,10 @@ void HomePage::create_right_pannel()
     rightRectItem->setPen(QPen(_scheme.borderGet(), 1));
     rightRectItem->setBrush(_scheme.backgroundGet());
 */
-    // === ДОБАВЛЯЕМ ПОИСКОВИК ===
-    SearchMew* search = new SearchMew(_scheme, this);
-    search->setPos(mainRect.width() + 290, 2);
-    search->setZValue(999);
+    // // === ДОБАВЛЯЕМ ПОИСКОВИК ===
+    // SearchMew* search = new SearchMew(_scheme, this);
+    // search->setPos(mainRect.width() + 290, 2);
+    // search->setZValue(999);
 
 }
 

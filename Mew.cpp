@@ -61,6 +61,7 @@ void Mew::changeCurrentPage(PageID pageID)
     Page* page = pages->getCurrentPage(pageID);
     page->refresh();          // ← вот это добавляем
     page->setVisible(true);
+    page->refresh();
 
     connect(page, &Page::changeCurrentPage,
             this, &Mew::changeCurrentPage);
@@ -116,6 +117,7 @@ void Mew::setUnvisibleAll()
 
 void Mew::initPages()
 {
+
     pages = new PageChanger(*scheme, QRectF(0, 0, 100, 100), db);
 
     //homePage = new HomePage(*scheme, QRectF(0,0,100,100));
