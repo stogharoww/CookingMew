@@ -91,7 +91,7 @@ private:
 
     // геометрия
     QRectF _bounds;
-    qreal  _padding      = 10.0;
+    qreal  _padding      = 6.0;
     qreal  _minHeight    = 40.0;
     qreal  _maxHeight    = 200.0;
     qreal  _maxWidth     = 300.0;

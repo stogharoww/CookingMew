@@ -17,11 +17,12 @@ IngredientRow::IngredientRow(ColorScheme& scheme,
     // === NAME ===
     nameEdit = new TextEditMew(_scheme, this);
     nameEdit->setPos(0, 0);
-    nameEdit->setMaxWidth(col1 - 10);
     nameEdit->setMinHeight(_height);
     nameEdit->setMaxHeight(_height);
     nameEdit->setSingleLine(true);
-    nameEdit->setAutoExpand(false);
+    nameEdit->setAutoExpand(false);   // вызывает updateLayout()
+    nameEdit->setMaxWidth(col1 - 10); // вызывает updateLayout() ЕЩЁ РАЗ
+
 
     // === AMOUNT ===
     amountEdit = new TextEditMew(_scheme, this);
@@ -39,6 +40,12 @@ IngredientRow::IngredientRow(ColorScheme& scheme,
 
     for (const Units& u : _units)
         unitCombo->addItem(u.short_name, u.id);
+
+    nameEdit->setZValue(10);
+    amountEdit->setZValue(10);
+    unitCombo->setZValue(10);
+    this->setZValue(0);
+
 }
 
 QRectF IngredientRow::boundingRect() const
@@ -48,9 +55,9 @@ QRectF IngredientRow::boundingRect() const
 
 void IngredientRow::paint(QPainter* p, const QStyleOptionGraphicsItem*, QWidget*)
 {
-    p->setBrush(_scheme.backgroundGet());
-    p->setPen(Qt::NoPen);
+    p->setBrush(QColor(255, 0, 0, 80));
     p->drawRect(boundingRect());
+
 }
 
 

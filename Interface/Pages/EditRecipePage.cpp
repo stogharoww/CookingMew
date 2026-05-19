@@ -6,21 +6,52 @@
 EditRecipePage::EditRecipePage(ColorScheme& scheme, QRectF rect)
     : Page(scheme, rect, PageID::editPage),
     _scheme(scheme)
-{}
+{
+}
+
+// ======================================================
+//                 ДАННЫЕ ДЛЯ СТРАНИЦЫ
+// ======================================================
 
 void EditRecipePage::setContent(QVector<QString> content)
 {
-    _title = content[0];
-    _category = content[1];
-    _steps = content[2];
+    _title       = content[0];
+    _category    = content[1];
+    _steps       = content[2];
     _ingredients = content[3];
+
     dataAviable = true;
+    needRebuild = true;
 }
+
+// ======================================================
+//                 ОБНОВЛЕНИЕ СТРАНИЦЫ
+// ======================================================
 
 void EditRecipePage::update_pages()
 {
+    if (!needRebuild)
+        return;
+
+    needRebuild = false;
+
+    if (mainRectItem) {
+        delete mainRectItem;
+        mainRectItem = nullptr;
+    }
+    if (rightRectItem) {
+        delete rightRectItem;
+        rightRectItem = nullptr;
+    }
+
+    ingredientRows.clear();
+
     Page::update_pages();
 }
+
+// ======================================================
+//                 СОЗДАНИЕ ПАНЕЛЕЙ
+// ======================================================
 
 void EditRecipePage::create_main_pannel()
 {
@@ -43,17 +74,21 @@ void EditRecipePage::editMode()
     buildRightPanel();
 }
 
-//
-// ===================== MAIN PANEL =====================
-//
+// ======================================================
+//                 MAIN PANEL
+// ======================================================
 
 void EditRecipePage::buildMainPanel()
 {
-    const qreal margin = 20;
+    const qreal margin  = 20;
     const qreal spacing = 10;
 
-    QRectF mainRect(0, 0, width / 1.8, height);
+    if (mainRectItem) {
+        delete mainRectItem;
+        mainRectItem = nullptr;
+    }
 
+    QRectF mainRect(0, 0, width / 1.8, height);
     mainRectItem = new QGraphicsRectItem(mainRect, this);
     mainRectItem->setPos(leftRect.width(), 0);
     mainRectItem->setPen(scheme.borderGet());
@@ -103,8 +138,8 @@ void EditRecipePage::buildMainPanel()
 
     // STEPS
     qreal stepsWidth = mainRectItem->rect().width() - 2 * margin;
-    qreal stepsMinH = 240;
-    qreal stepsMaxH = height * 0.6;
+    qreal stepsMinH  = 240;
+    qreal stepsMaxH  = height * 0.6;
 
     stepsEdit = new TextEditMew(_scheme, mainRectItem);
     stepsEdit->setPos(margin, y);
@@ -116,15 +151,20 @@ void EditRecipePage::buildMainPanel()
     stepsEdit->setText(_steps);
 }
 
-//
-// ===================== RIGHT PANEL =====================
-//
+// ======================================================
+//                 RIGHT PANEL
+// ======================================================
 
 void EditRecipePage::buildRightPanel()
 {
-    qreal rightWidth = width - (width / 1.8 + leftRect.width());
+    if (rightRectItem) {
+        delete rightRectItem;
+        rightRectItem = nullptr;
+    }
 
+    qreal rightWidth = width - (width / 1.8 + leftRect.width());
     QRectF rightRect(0, 0, rightWidth, height);
+
     rightRectItem = new QGraphicsRectItem(rightRect, this);
     rightRectItem->setPos(width / 1.8 + leftRect.width() + 1, 0);
     rightRectItem->setBrush(_scheme.backgroundGet());
@@ -141,9 +181,9 @@ void EditRecipePage::buildRightPanel()
     buildIngredientsPanel(rightRectItem, ingTop);
 }
 
-//
-// ===================== INGREDIENTS PANEL =====================
-//
+// ======================================================
+//                 INGREDIENTS PANEL
+// ======================================================
 
 QVector<Recipeingred> EditRecipePage::ingredientsForRecipe(int recipeId)
 {
@@ -204,6 +244,8 @@ void EditRecipePage::buildIngredientsPanel(QGraphicsItem* parent, qreal topY)
     QVector<Units> units = db->UnitsTable().Vector();
     QVector<Recipeingred> list = ingredientsForRecipe(_recipeID);
 
+    qDebug() << "ING PANEL: recipe" << _recipeID << "rows:" << list.size();
+
     qreal rowY = topY;
     qreal rowHeight = 45;
 
@@ -222,9 +264,9 @@ void EditRecipePage::buildIngredientsPanel(QGraphicsItem* parent, qreal topY)
     }
 }
 
-//
-// ===================== SAVE =====================
-//
+// ======================================================
+//                 SAVE
+// ======================================================
 
 void EditRecipePage::saveIngredients()
 {
@@ -242,10 +284,10 @@ void EditRecipePage::saveIngredients()
         int ingId = findOrCreateIngredient(name);
 
         Recipeingred ri;
-        ri.recipe_id = _recipeID;
+        ri.recipe_id   = _recipeID;
         ri.ingredient_id = ingId;
-        ri.amount = amount;
-        ri.unit_id = unitId;
+        ri.amount      = amount;
+        ri.unit_id     = unitId;
 
         insertIngredientRow(ri);
     }

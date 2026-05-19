@@ -66,6 +66,7 @@ private:
     void insertIngredientRow(const Recipeingred& ri);
 
     ColorScheme _scheme;
+    bool needRebuild = false;
 
 
 };
