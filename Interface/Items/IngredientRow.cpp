@@ -55,8 +55,8 @@ QRectF IngredientRow::boundingRect() const
 
 void IngredientRow::paint(QPainter* p, const QStyleOptionGraphicsItem*, QWidget*)
 {
-    p->setBrush(QColor(255, 0, 0, 80));
-    p->drawRect(boundingRect());
+    // p->setBrush(QColor(255, 0, 0, 80));
+    // p->drawRect(boundingRect());
 
 }
 

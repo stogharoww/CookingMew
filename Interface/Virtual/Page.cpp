@@ -12,7 +12,7 @@ Page::Page(ColorScheme& scheme, QRectF rect, PageID id)
     height = rect.height();
 
     textForBtm = {
-        "Home", "Settings"
+        "Home", "New Recipe"
         //"Bookmarks", "Ingredients",
         //"My groups", "More", "Post"
     };
@@ -88,12 +88,12 @@ void Page::create_left_pannel()
         auto& btm = _btms[i];
 
         btm->setPos(leftRect.width() / 5,
-                    yPosBtm - (yPosBtm - btm->boundingRect().height() - 65 * count - yPosBtm / 5));
+                    yPosBtm - (yPosBtm - btm->boundingRect().height() - 65 * count - yPosBtm / 3));
 
         btm->set_text(textForBtm[count]);
 
         // Цвета
-        if (count != 6)
+        if (count != 1)
             btm->change_main_color();
         else {
             QColor base = scheme.baseColorGet();
@@ -143,12 +143,12 @@ void Page::connectBtms()
         switch (count)
         {
         case 0: connect(btm, &Button::clicked, this, &Page::btmHomeClicked); break;
-        case 1: connect(btm, &Button::clicked, this, &Page::btmExploreClicked); break;
+        case 6: connect(btm, &Button::clicked, this, &Page::btmExploreClicked); break;
         case 2: connect(btm, &Button::clicked, this, &Page::btmBookmarksClicked); break;
         case 3: connect(btm, &Button::clicked, this, &Page::btmIngredientsClicked); break;
         case 4: connect(btm, &Button::clicked, this, &Page::btmMyGroupsClicked); break;
         case 5: connect(btm, &Button::clicked, this, &Page::btmMoreClicked); break;
-        case 6: connect(btm, &Button::clicked, this, &Page::btmPostClicked); break;
+        case 1: connect(btm, &Button::clicked, this, &Page::btmPostClicked); break;
         }
         count++;
     }

@@ -1,7 +1,10 @@
 #include "EditRecipePage.h"
-#include <QTextDocument>
+
+#include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QDebug>
+#include <QTextDocument>
 
 EditRecipePage::EditRecipePage(ColorScheme& scheme, QRectF rect)
     : Page(scheme, rect, PageID::editPage),
@@ -10,22 +13,23 @@ EditRecipePage::EditRecipePage(ColorScheme& scheme, QRectF rect)
 }
 
 // ======================================================
-//                 ДАННЫЕ ДЛЯ СТРАНИЦЫ
+//                 SET CONTENT
 // ======================================================
 
 void EditRecipePage::setContent(QVector<QString> content)
 {
-    _title       = content[0];
-    _category    = content[1];
-    _steps       = content[2];
-    _ingredients = content[3];
+    if (content.size() >= 3) {
+        _title    = content[0];
+        _category = content[1];
+        _steps    = content[2];
+    }
 
     dataAviable = true;
     needRebuild = true;
 }
 
 // ======================================================
-//                 ОБНОВЛЕНИЕ СТРАНИЦЫ
+//                 UPDATE
 // ======================================================
 
 void EditRecipePage::update_pages()
@@ -35,14 +39,14 @@ void EditRecipePage::update_pages()
 
     needRebuild = false;
 
-    if (mainRectItem) {
-        delete mainRectItem;
-        mainRectItem = nullptr;
-    }
-    if (rightRectItem) {
-        delete rightRectItem;
-        rightRectItem = nullptr;
-    }
+    if (_recipeID <= 0)
+        return;
+
+    // Загружаем актуальные данные из SQL
+    loadRecipeFromSql();
+
+    if (mainRectItem) { delete mainRectItem; mainRectItem = nullptr; }
+    if (rightRectItem) { delete rightRectItem; rightRectItem = nullptr; }
 
     ingredientRows.clear();
 
@@ -50,22 +54,19 @@ void EditRecipePage::update_pages()
 }
 
 // ======================================================
-//                 СОЗДАНИЕ ПАНЕЛЕЙ
+//                 PANELS
 // ======================================================
 
 void EditRecipePage::create_main_pannel()
 {
-    if (!dataAviable) {
-        qDebug() << "EDIT PAGE:: Data is not available";
+    if (!dataAviable)
         return;
-    }
 
     editMode();
 }
 
 void EditRecipePage::create_right_pannel()
 {
-    // unused
 }
 
 void EditRecipePage::editMode()
@@ -82,11 +83,6 @@ void EditRecipePage::buildMainPanel()
 {
     const qreal margin  = 20;
     const qreal spacing = 10;
-
-    if (mainRectItem) {
-        delete mainRectItem;
-        mainRectItem = nullptr;
-    }
 
     QRectF mainRect(0, 0, width / 1.8, height);
     mainRectItem = new QGraphicsRectItem(mainRect, this);
@@ -138,14 +134,12 @@ void EditRecipePage::buildMainPanel()
 
     // STEPS
     qreal stepsWidth = mainRectItem->rect().width() - 2 * margin;
-    qreal stepsMinH  = 240;
-    qreal stepsMaxH  = height * 0.6;
 
     stepsEdit = new TextEditMew(_scheme, mainRectItem);
     stepsEdit->setPos(margin, y);
     stepsEdit->setMaxWidth(stepsWidth);
-    stepsEdit->setMinHeight(stepsMinH);
-    stepsEdit->setMaxHeight(stepsMaxH);
+    stepsEdit->setMinHeight(240);
+    stepsEdit->setMaxHeight(height * 0.6);
     stepsEdit->setMultiline(true);
     stepsEdit->setAutoExpand(true);
     stepsEdit->setText(_steps);
@@ -157,11 +151,6 @@ void EditRecipePage::buildMainPanel()
 
 void EditRecipePage::buildRightPanel()
 {
-    if (rightRectItem) {
-        delete rightRectItem;
-        rightRectItem = nullptr;
-    }
-
     qreal rightWidth = width - (width / 1.8 + leftRect.width());
     QRectF rightRect(0, 0, rightWidth, height);
 
@@ -179,89 +168,64 @@ void EditRecipePage::buildRightPanel()
     qreal ingTop = header->boundingRect().height() + 40;
 
     buildIngredientsPanel(rightRectItem, ingTop);
+
+    // === ADD BUTTON ===
+    addIngredientBtn = new ButtonMew(_scheme, rightRectItem);
+    addIngredientBtn->setText("Добавить");
+    addIngredientBtn->setPos(20, ingTop + 10);
+
+    connect(addIngredientBtn, &ButtonMew::clicked, this, [=]() {
+        addIngredientRow();
+    });
+
+    // === REMOVE BUTTON ===
+    removeIngredientBtn = new ButtonMew(_scheme, rightRectItem);
+    removeIngredientBtn->setText("Удалить");
+    removeIngredientBtn->setPos(addIngredientBtn->boundingRect().width() + 40, ingTop + 10);
+
+    connect(removeIngredientBtn, &ButtonMew::clicked, this, [=]() {
+        removeLastIngredientRow();
+    });
+    repositionIngredientRows();
+
+
 }
 
 // ======================================================
-//                 INGREDIENTS PANEL
+//                 INGREDIENTS (SQL)
 // ======================================================
-
-QVector<Recipeingred> EditRecipePage::ingredientsForRecipe(int recipeId)
-{
-    QVector<Recipeingred> result;
-
-    for (const auto& ri : db->RecipeIngredientsTable().Vector())
-        if (ri.recipe_id == recipeId)
-            result.append(ri);
-
-    return result;
-}
-
-ingredient EditRecipePage::getIngredientById(int id)
-{
-    auto& h = db->IngredientsTable().Hash();
-    return h.contains(id) ? h[id] : ingredient{};
-}
-
-int EditRecipePage::findOrCreateIngredient(const QString& name)
-{
-    auto& vec = db->IngredientsTable().Vector();
-
-    for (const auto& ing : vec)
-        if (ing.name.compare(name, Qt::CaseInsensitive) == 0)
-            return ing.id;
-
-    ingredient ing;
-    ing.name = name;
-
-    db->IngredientsTable().Add(ing);
-    db->IngredientsTable().Read();
-
-    for (const auto& ing2 : db->IngredientsTable().Vector())
-        if (ing2.name == name)
-            return ing2.id;
-
-    return 0;
-}
-
-void EditRecipePage::deleteIngredientsForRecipe(int recipeId)
-{
-    for (const auto& ri : db->RecipeIngredientsTable().Vector())
-        if (ri.recipe_id == recipeId)
-            db->RecipeIngredientsTable().Delete(ri);
-
-    db->RecipeIngredientsTable().Read();
-}
-
-void EditRecipePage::insertIngredientRow(const Recipeingred& ri)
-{
-    db->RecipeIngredientsTable().Add(ri);
-}
 
 void EditRecipePage::buildIngredientsPanel(QGraphicsItem* parent, qreal topY)
 {
     ingredientRows.clear();
 
-    QVector<Units> units = db->UnitsTable().Vector();
-    QVector<Recipeingred> list = ingredientsForRecipe(_recipeID);
+    QVector<Units> units;
+    if (db)
+        units = db->UnitsTable().Vector();
 
-    qDebug() << "ING PANEL: recipe" << _recipeID << "rows:" << list.size();
+    QVector<std::tuple<QString,double,int>> list;
+    loadIngredientsFromSql(list);
 
     qreal rowY = topY;
     qreal rowHeight = 45;
 
-    for (const auto& ri : list)
+    for (auto& t : list)
     {
+        QString name  = std::get<0>(t);
+        double amount = std::get<1>(t);
+        int unitId    = std::get<2>(t);
+
         IngredientRow* row = new IngredientRow(_scheme, units, parent);
         row->setPos(20, rowY);
 
-        ingredient ing = getIngredientById(ri.ingredient_id);
-        row->setIngredientName(ing.name);
-        row->setAmount(QString::number(ri.amount));
-        row->setUnit(ri.unit_id);
+        row->setIngredientName(name);
+        row->setAmount(QString::number(amount));
+        row->setUnit(unitId);
 
         ingredientRows.append(row);
         rowY += rowHeight;
     }
+
 }
 
 // ======================================================
@@ -270,49 +234,210 @@ void EditRecipePage::buildIngredientsPanel(QGraphicsItem* parent, qreal topY)
 
 void EditRecipePage::saveIngredients()
 {
-    deleteIngredientsForRecipe(_recipeID);
+    deleteIngredientsForRecipeSql(_recipeID);
 
     for (auto* row : ingredientRows)
     {
-        QString name = row->ingredientName();
-        if (name.trimmed().isEmpty())
+        QString name = row->ingredientName().trimmed();
+        if (name.isEmpty())
             continue;
 
         double amount = row->amount().toDouble();
-        int unitId = row->unitId();
+        int unitId    = row->unitId();
 
-        int ingId = findOrCreateIngredient(name);
+        int ingId = findOrCreateIngredientSql(name);
+        if (ingId <= 0)
+            continue;
 
-        Recipeingred ri;
-        ri.recipe_id   = _recipeID;
-        ri.ingredient_id = ingId;
-        ri.amount      = amount;
-        ri.unit_id     = unitId;
-
-        insertIngredientRow(ri);
+        insertIngredientRowSql(_recipeID, ingId, amount, unitId);
     }
 }
 
 void EditRecipePage::saveRecipe()
 {
-    if (!db) return;
-
-    QString newTitle = titleEdit->text();
+    QString newTitle = titleEdit->text().trimmed();
     QString newSteps = stepsEdit->text();
 
+    if (newTitle.isEmpty()) {
+        qDebug() << "EDIT PAGE: empty title";
+        return;
+    }
+
     QSqlDatabase dbsql = QSqlDatabase::database("cookbook_connection");
-    if (!dbsql.isOpen()) return;
+    if (!dbsql.isOpen())
+        return;
 
     QSqlQuery q(dbsql);
-    q.prepare("UPDATE recipes SET title = :title, instructions = :steps WHERE id = :id");
-    q.bindValue(":title", newTitle);
-    q.bindValue(":steps", newSteps);
+    q.prepare("UPDATE recipes SET title = :t, instructions = :s WHERE id = :id");
+    q.bindValue(":t", newTitle);
+    q.bindValue(":s", newSteps);
     q.bindValue(":id", _recipeID);
 
-    if (!q.exec())
-        qDebug() << "UPDATE FAILED:" << q.lastError();
-    else
-        qDebug() << "Recipe updated OK";
+    q.exec();
 
     saveIngredients();
 }
+
+// ======================================================
+//                 SQL HELPERS
+// ======================================================
+
+bool EditRecipePage::loadRecipeFromSql()
+{
+    QSqlDatabase dbsql = QSqlDatabase::database("cookbook_connection");
+    if (!dbsql.isOpen())
+        return false;
+
+    QSqlQuery q(dbsql);
+    q.prepare(
+        "SELECT r.title, r.instructions, c.name "
+        "FROM recipes r "
+        "JOIN categories c ON r.category_id = c.id "
+        "WHERE r.id = :id"
+        );
+    q.bindValue(":id", _recipeID);
+
+    if (!q.exec() || !q.next())
+        return false;
+
+    _title    = q.value(0).toString();
+    _steps    = q.value(1).toString();
+    _category = q.value(2).toString();
+
+    return true;
+}
+
+void EditRecipePage::loadIngredientsFromSql(QVector<std::tuple<QString,double,int>>& out)
+{
+    out.clear();
+
+    QSqlDatabase dbsql = QSqlDatabase::database("cookbook_connection");
+    if (!dbsql.isOpen())
+        return;
+
+    QSqlQuery q(dbsql);
+    q.prepare(
+        "SELECT i.name, ri.amount, ri.unit_id "
+        "FROM recipe_ingredients ri "
+        "JOIN ingredients i ON i.id = ri.ingredient_id "
+        "WHERE ri.recipe_id = :id"
+        );
+    q.bindValue(":id", _recipeID);
+
+    if (!q.exec())
+        return;
+
+    while (q.next()) {
+        out.append(std::make_tuple(
+            q.value(0).toString(),
+            q.value(1).toDouble(),
+            q.value(2).toInt()
+            ));
+    }
+}
+
+int EditRecipePage::findOrCreateIngredientSql(const QString& name)
+{
+    QSqlDatabase dbsql = QSqlDatabase::database("cookbook_connection");
+    if (!dbsql.isOpen())
+        return 0;
+
+    // find
+    {
+        QSqlQuery q(dbsql);
+        q.prepare("SELECT id FROM ingredients WHERE LOWER(name)=LOWER(:n) LIMIT 1");
+        q.bindValue(":n", name);
+
+        if (q.exec() && q.next())
+            return q.value(0).toInt();
+    }
+
+    // create
+    {
+        QSqlQuery q(dbsql);
+        q.prepare("INSERT INTO ingredients (name) VALUES (:n)");
+        q.bindValue(":n", name);
+
+        if (!q.exec())
+            return 0;
+
+        return q.lastInsertId().toInt();
+    }
+}
+
+void EditRecipePage::deleteIngredientsForRecipeSql(int recipeId)
+{
+    QSqlDatabase dbsql = QSqlDatabase::database("cookbook_connection");
+    if (!dbsql.isOpen())
+        return;
+
+    QSqlQuery q(dbsql);
+    q.prepare("DELETE FROM recipe_ingredients WHERE recipe_id = :id");
+    q.bindValue(":id", recipeId);
+    q.exec();
+}
+
+void EditRecipePage::insertIngredientRowSql(int recipeId, int ingredientId, double amount, int unitId)
+{
+    QSqlDatabase dbsql = QSqlDatabase::database("cookbook_connection");
+    if (!dbsql.isOpen())
+        return;
+
+    QSqlQuery q(dbsql);
+    q.prepare(
+        "INSERT INTO recipe_ingredients (recipe_id, ingredient_id, amount, unit_id) "
+        "VALUES (:r, :i, :a, :u)"
+        );
+    q.bindValue(":r", recipeId);
+    q.bindValue(":i", ingredientId);
+    q.bindValue(":a", amount);
+    q.bindValue(":u", unitId);
+
+    q.exec();
+}
+
+void EditRecipePage::addIngredientRow()
+{
+    QVector<Units> units;
+    if (db)
+        units = db->UnitsTable().Vector();
+
+    IngredientRow* row = new IngredientRow(_scheme, units, rightRectItem);
+    ingredientRows.append(row);
+
+    repositionIngredientRows();
+}
+
+void EditRecipePage::removeLastIngredientRow()
+{
+    if (ingredientRows.size() <= 1)
+        return;
+
+    IngredientRow* row = ingredientRows.last();
+    ingredientRows.removeLast();
+    delete row;
+
+    repositionIngredientRows();
+}
+void EditRecipePage::repositionIngredientRows()
+{
+    qreal startX = 20;
+    qreal rowHeight = 45;
+
+    // Верхняя граница блока ингредиентов
+    qreal y = 20 + 20 + 40; // header height + margins
+
+    for (auto* row : ingredientRows)
+    {
+        row->setPos(startX, y);
+        y += rowHeight;
+    }
+
+    if (addIngredientBtn)
+        addIngredientBtn->setPos(startX, y + 10);
+
+    if (removeIngredientBtn)
+        removeIngredientBtn->setPos(startX + addIngredientBtn->boundingRect().width() + 20, y + 10);
+}
+
+

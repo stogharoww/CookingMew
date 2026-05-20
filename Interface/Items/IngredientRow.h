@@ -26,6 +26,8 @@ public:
     QString amount() const;
     int unitId() const;
 
+
+
 private:
     ColorScheme _scheme;
 

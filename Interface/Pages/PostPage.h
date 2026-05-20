@@ -5,26 +5,22 @@
 #include "../../Database/database.h"
 #include "../ColorScheme.h"
 
-#include <tuple>   // std::tuple
-
-class EditRecipePage : public Page
+class PostPage : public Page
 {
     Q_OBJECT
 
 public:
-    EditRecipePage(ColorScheme& scheme, QRectF rect);
-
-    void setContent(QVector<QString> content);
-    void update_pages() override;
+    PostPage(ColorScheme& scheme, QRectF rect);
 
     void setDatabase(DataBase* database) { db = database; }
-    void setRecipeID(int id) { _recipeID = id; needRebuild = true; }
+
+    void update_pages() override;
 
 signals:
-    void goBackToRecipe(int id);
+    void goToRecipe();
 
 private:
-    // Page
+    // Реализация виртуальных методов Page
     void create_main_pannel() override;
     void create_right_pannel() override;
 
@@ -39,12 +35,6 @@ private:
 
     QVector<IngredientRow*> ingredientRows;
 
-    // Data
-    QString _title;
-    QString _category;
-    QString _steps;
-    bool dataAviable = false;
-
     // DB
     DataBase* db = nullptr;
     int _recipeID = 0;
@@ -53,26 +43,32 @@ private:
     void editMode();
     void buildMainPanel();
     void buildRightPanel();
-    void buildIngredientsPanel(QGraphicsItem* parent, qreal topY);
-
+    void buildIngredientsPanel(QGraphicsItem* parent);
     void saveRecipe();
     void saveIngredients();
 
-    // SQL helpers
-    bool loadRecipeFromSql();
-    void loadIngredientsFromSql(QVector<std::tuple<QString,double,int>>& out);
-
-    int  findOrCreateIngredientSql(const QString& name);
-    void deleteIngredientsForRecipeSql(int recipeId);
-    void insertIngredientRowSql(int recipeId, int ingredientId, double amount, int unitId);
+    // DB helpers
+    int findOrCreateIngredient(const QString& name);
+    void insertIngredientRow(const Recipeingred& ri);
 
     ColorScheme _scheme;
-    bool needRebuild = false;
+
+    // Чтобы страница строилась только один раз
+    bool needRebuild = true;
+
+
     ButtonMew* addIngredientBtn = nullptr;
-    ButtonMew* removeIngredientBtn = nullptr;
+
     void addIngredientRow();
-    void removeLastIngredientRow();
     void repositionIngredientRows();
+    qreal ingredientsTopY = 0;
+
+    ButtonMew* removeIngredientBtn = nullptr;
+
+    void removeLastIngredientRow();
+
+    int getOrCreateUserCategory();
+
 
 
 };

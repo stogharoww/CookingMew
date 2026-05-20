@@ -14,6 +14,11 @@ HomePage::HomePage(ColorScheme& scheme, QRectF rect)
 
 }
 
+void HomePage::scrollToBottom()
+{
+    forYouScrollArea->scrollToBottom();
+}
+
 void HomePage::btmForYouClicked()
 {
     forYouBtm->set_text_bold();

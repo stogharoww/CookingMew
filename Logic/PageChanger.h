@@ -40,6 +40,7 @@ public:
 public slots:
     void openRecipe(int recipeID);
     void backFromEdit(int recipeID);
+    void createdPage();
 
 signals:
     void changePage(PageID id);
@@ -51,5 +52,6 @@ private:
    // DataBase* db;          // <--- ДОБАВЛЕНО
     RecepiePage* recepie;
     EditRecipePage *editRecipePage;
+    HomePage* home;
 };
 

@@ -23,6 +23,7 @@ class HomePage : public Page
 public:
     HomePage(ColorScheme &scheme, QRectF rect);
     void setDatabase(DataBase* database) { db = database; }
+    void scrollToBottom();
 public slots:
     void btmForYouClicked();
     void btmFollowClicked();

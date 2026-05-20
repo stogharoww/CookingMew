@@ -4,12 +4,13 @@
 #include "../Interface/Pages/MyGroupsPage.h"
 #include "../Interface/Pages/ExplorePage.h"
 #include "../Interface/Pages/EditRecipePage.h"
+#include "../Interface/Pages/PostPage.h"
 //#include "../Database/databace.h"
 
 PageChanger::PageChanger(ColorScheme &scheme, QRectF rect, DataBase* database)
     : db(database)
 {
-    HomePage* home = new HomePage(scheme, rect);
+    home = new HomePage(scheme, rect);
     home->setDatabase(db);
 
     recepie = new RecepiePage(scheme, rect);
@@ -24,7 +25,10 @@ PageChanger::PageChanger(ColorScheme &scheme, QRectF rect, DataBase* database)
     MyGroupsPage* myGroups = new MyGroupsPage(scheme, rect);
     ExplorePage* explore = new ExplorePage(scheme, rect);
 
-    pages = { home, recepie, bookmarks, ingredients, myGroups, explore, editRecipePage };
+    PostPage* post = new PostPage(scheme, rect);
+    post->setDatabase(db);
+
+    pages = { home, recepie, bookmarks, ingredients, myGroups, explore, editRecipePage, post };
 
     for (auto* page : pages)
         page->refresh();
@@ -34,6 +38,11 @@ PageChanger::PageChanger(ColorScheme &scheme, QRectF rect, DataBase* database)
 
     connect(editRecipePage, &EditRecipePage::goBackToRecipe,
             this, &PageChanger::backFromEdit);
+
+    connect(post, &PostPage::goToRecipe, this, &PageChanger::createdPage);
+
+
+
 
 
 }
@@ -72,6 +81,7 @@ Page* PageChanger::getCurrentPage(PageID currentPage)
     case PageID::myGroups: return pages[4];
     case PageID::explore: return pages[5];
     case PageID::editPage: return pages[6];
+    case PageID::post: return pages[7];
     default: return pages[0];
     }
 }
@@ -80,15 +90,21 @@ void PageChanger::openRecipe(int recipeID)
 {
     currentPage = PageID::recepie;
 
+    // 1. Загружаем страницу рецепта
     recepie->setRecipeID(recipeID);
+    recepie->update_pages();
+
+    // 2. Передаём данные в EditPage
     editRecipePage->setRecipeID(recipeID);
-    recepie->refresh();
-    pages[0]->refresh();
-    editRecipePage->refresh();
     editRecipePage->setContent(recepie->getContent());
-    pages[6]->refresh();
+
+    // 3. Теперь можно строить EditPage
+    editRecipePage->update_pages();
+
+    // 4. Переходим на страницу рецепта
     emit changePage(PageID::recepie);
 }
+
 
 void PageChanger::backFromEdit(int recipeID)
 {
@@ -98,5 +114,16 @@ void PageChanger::backFromEdit(int recipeID)
     recepie->refresh();                // только страница рецепта
 
     emit changePage(PageID::recepie);  // Mew уже сам сделает refresh() и показ
+}
+
+void PageChanger::createdPage()
+{
+    currentPage = PageID::home;
+    home->refresh();
+    recepie->refresh();
+    home->scrollToBottom();
+    emit changePage(PageID::home);
+
+
 }
 

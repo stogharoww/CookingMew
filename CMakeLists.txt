@@ -66,6 +66,8 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
         Interface/Pages/EditRecipePage.h Interface/Pages/EditRecipePage.cpp
         Interface/Items/IngredientRow.h Interface/Items/IngredientRow.cpp
         Interface/Interactive/MewComboBox.h Interface/Interactive/MewComboBox.cpp
+        Interface/Pages/PostPage.h Interface/Pages/PostPage.cpp
+
 
 
 
