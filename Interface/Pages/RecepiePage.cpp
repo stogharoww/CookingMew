@@ -4,9 +4,10 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QFont>
-#include <QFontMetricsF>
+#include <QFontMetricsF>#
 #include <QDebug>
 #include <QTextDocument>
+#include "../Interactive/ConfirmDialog.h"
 
 
 RecepiePage::RecepiePage(ColorScheme& scheme, QRectF rect)
@@ -255,18 +256,35 @@ void RecepiePage::create_main_pannel()
 
     // ===== DELETE =====
     connect(deleteBtn, &ButtonMew::clicked, this, [=]() {
-        if (!db) return;
 
-        for (auto& ri : db->RecipeIngredientsTable().Vector())
-            if (ri.recipe_id == _recipeID)
-                db->RecipeIngredientsTable().Delete(ri);
+        auto* dlg = new ConfirmDialog(_scheme, this);
+        dlg->setZValue(9999);
+        dlg->setPos(width/2, height/2);
+        dlg->setMessage("Точно удалить рецепт?");
 
-        Recipes rec;
-        rec.id = _recipeID;
+        connect(dlg, &ConfirmDialog::accepted, this, [=]() {
 
-        if (db->RecipesTable().Delete(rec))
+            // Удаляем ингредиенты
+            QSqlDatabase dbsql = QSqlDatabase::database("cookbook_connection");
+            QSqlQuery q(dbsql);
+
+            q.prepare("DELETE FROM recipe_ingredients WHERE recipe_id = :id");
+            q.bindValue(":id", _recipeID);
+            q.exec();
+
+            // Удаляем сам рецепт
+            q.prepare("DELETE FROM recipes WHERE id = :id");
+            q.bindValue(":id", _recipeID);
+            q.exec();
+
             emit changeCurrentPage(PageID::home);
+        });
+
+        connect(dlg, &ConfirmDialog::rejected, this, []() {
+            // ничего не делаем
+        });
     });
+
 }
 
 // ======================= ПРАВАЯ ПАНЕЛЬ =======================
