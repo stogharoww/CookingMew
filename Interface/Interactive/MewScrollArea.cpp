@@ -27,6 +27,8 @@ void MewScrollArea::setContent(QGraphicsObject* item)
     _content->setParentItem(this);
     _content->setPos(0, 0);
 
+     _content->installSceneEventFilter(this);
+
     // если это лента — прокидываем сигнал
     if (auto* lent = qobject_cast<FollowLent*>(item))
     {
@@ -43,13 +45,10 @@ void MewScrollArea::setContentItem(QGraphicsItem* item)
     if (!item)
         return;
 
-    // превращаем QGraphicsItem в QGraphicsObject, если возможно
     _content = dynamic_cast<QGraphicsObject*>(item);
 
-    // если это НЕ QGraphicsObject — делаем обёртку
     if (!_content)
     {
-        // создаём обёртку-объект
         class Wrapper : public QGraphicsObject
         {
         public:
@@ -66,7 +65,6 @@ void MewScrollArea::setContentItem(QGraphicsItem* item)
 
             void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override
             {
-                // ничего не рисуем, ребёнок рисует сам
             }
 
         private:
@@ -81,8 +79,11 @@ void MewScrollArea::setContentItem(QGraphicsItem* item)
     }
 
     _content->setPos(0, 0);
+    _content->installSceneEventFilter(this);   // <<< и здесь
+
     updateContentGeometry();
 }
+
 
 
 void MewScrollArea::updateContentGeometry()

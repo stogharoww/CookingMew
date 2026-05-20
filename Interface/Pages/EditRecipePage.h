@@ -4,6 +4,7 @@
 #include "../Items/IngredientRow.h"
 #include "../../Database/database.h"
 #include "../ColorScheme.h"
+#include "../Interactive/MewScrollArea.h"
 
 #include <tuple>   // std::tuple
 
@@ -73,6 +74,10 @@ private:
     void addIngredientRow();
     void removeLastIngredientRow();
     void repositionIngredientRows();
+
+    MewScrollArea* ingredientsScroll = nullptr;
+    QGraphicsRectItem* ingredientsContainer = nullptr;
+
 
 
 };

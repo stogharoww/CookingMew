@@ -153,18 +153,19 @@ void PostPage::buildRightPanel()
     rightRectItem->setBrush(_scheme.backgroundGet());
     rightRectItem->setPen(Qt::NoPen);
 
+    // Заголовок
     auto* header = new QGraphicsTextItem("Ингредиенты", rightRectItem);
     QFont f; f.setPointSize(18); f.setBold(true);
     header->setFont(f);
     header->setDefaultTextColor(_scheme.additionalColorGet());
     header->setPos(20, 20);
 
-    // верхняя граница блока ингредиентов — сразу под заголовком
-    ingredientsTopY = header->pos().y() + header->boundingRect().height() + 20;
+    ingredientsTopY = header->boundingRect().height() + 40;
 
+    // Первая строка
     buildIngredientsPanel(rightRectItem);
 
-    // ADD INGREDIENT BUTTON
+    // Кнопка "Добавить"
     addIngredientBtn = new ButtonMew(_scheme, rightRectItem);
     addIngredientBtn->setText("Добавить");
 
@@ -172,14 +173,13 @@ void PostPage::buildRightPanel()
         addIngredientRow();
     });
 
-    // REMOVE INGREDIENT BUTTON
+    // Кнопка "Удалить"
     removeIngredientBtn = new ButtonMew(_scheme, rightRectItem);
     removeIngredientBtn->setText("Удалить");
 
     connect(removeIngredientBtn, &ButtonMew::clicked, this, [=]() {
         removeLastIngredientRow();
     });
-
 
     repositionIngredientRows();
 }
@@ -202,13 +202,25 @@ void PostPage::buildIngredientsPanel(QGraphicsItem* parent)
 
 void PostPage::addIngredientRow()
 {
-    if (!db || !rightRectItem)
+    if (ingredientRows.size() >= 14)
         return;
 
     QVector<Units> units = db->UnitsTable().Vector();
 
     IngredientRow* row = new IngredientRow(_scheme, units, rightRectItem);
     ingredientRows.append(row);
+
+    repositionIngredientRows();
+}
+
+void PostPage::removeLastIngredientRow()
+{
+    if (ingredientRows.size() <= 1)
+        return;
+
+    IngredientRow* row = ingredientRows.last();
+    ingredientRows.removeLast();
+    delete row;
 
     repositionIngredientRows();
 }
@@ -226,14 +238,14 @@ void PostPage::repositionIngredientRows()
         y += rowHeight;
     }
 
-    // Кнопка "Добавить"
     if (addIngredientBtn)
         addIngredientBtn->setPos(startX, y + 10);
 
-    // Кнопка "Удалить"
     if (removeIngredientBtn)
-        removeIngredientBtn->setPos(addIngredientBtn->boundingRect().width() + 10, y + 10);
+        removeIngredientBtn->setPos(startX + addIngredientBtn->boundingRect().width() + 10,
+                                    y + 10);
 }
+
 
 // ======================================================
 //                 SAVE
@@ -327,17 +339,6 @@ void PostPage::insertIngredientRow(const Recipeingred& ri)
 
 
 
-void PostPage::removeLastIngredientRow()
-{
-    if (ingredientRows.size() <= 1)
-        return; // хотя бы одна строка должна остаться
-
-    IngredientRow* row = ingredientRows.last();
-    ingredientRows.removeLast();
-    delete row;
-
-    repositionIngredientRows();
-}
 
 int PostPage::getOrCreateUserCategory()
 {

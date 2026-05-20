@@ -10,9 +10,9 @@ IngredientRow::IngredientRow(ColorScheme& scheme,
 {
     _width = parent ? parent->boundingRect().width() : 400;
 
-    qreal col1 = _width * 0.50;   // название
+    qreal col1 = _width * 0.48;   // название
     qreal col2 = _width * 0.20;   // количество
-    qreal col3 = _width * 0.30;   // единица
+    qreal col3 = _width * 0.24;   // единица
 
     // === NAME ===
     nameEdit = new TextEditMew(_scheme, this);

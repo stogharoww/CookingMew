@@ -181,7 +181,7 @@ void EditRecipePage::buildRightPanel()
     // === REMOVE BUTTON ===
     removeIngredientBtn = new ButtonMew(_scheme, rightRectItem);
     removeIngredientBtn->setText("Удалить");
-    removeIngredientBtn->setPos(addIngredientBtn->boundingRect().width() + 40, ingTop + 10);
+    removeIngredientBtn->setPos(addIngredientBtn->boundingRect().width() + 0, ingTop + 10);
 
     connect(removeIngredientBtn, &ButtonMew::clicked, this, [=]() {
         removeLastIngredientRow();
@@ -398,6 +398,9 @@ void EditRecipePage::insertIngredientRowSql(int recipeId, int ingredientId, doub
 
 void EditRecipePage::addIngredientRow()
 {
+    if (ingredientRows.size() >= 14)
+        return; // или показать сообщение
+
     QVector<Units> units;
     if (db)
         units = db->UnitsTable().Vector();
@@ -407,6 +410,7 @@ void EditRecipePage::addIngredientRow()
 
     repositionIngredientRows();
 }
+
 
 void EditRecipePage::removeLastIngredientRow()
 {
@@ -421,7 +425,7 @@ void EditRecipePage::removeLastIngredientRow()
 }
 void EditRecipePage::repositionIngredientRows()
 {
-    qreal startX = 20;
+    qreal startX = 10;
     qreal rowHeight = 45;
 
     // Верхняя граница блока ингредиентов
@@ -437,7 +441,7 @@ void EditRecipePage::repositionIngredientRows()
         addIngredientBtn->setPos(startX, y + 10);
 
     if (removeIngredientBtn)
-        removeIngredientBtn->setPos(startX + addIngredientBtn->boundingRect().width() + 20, y + 10);
+        removeIngredientBtn->setPos(startX + addIngredientBtn->boundingRect().width() + 0, y + 10);
 }
 
 
