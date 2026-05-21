@@ -1,6 +1,7 @@
 #include "TextEditMew.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QFocusEvent>
+#include <QFontDatabase>
 
 TextEditMew::TextEditMew(ColorScheme& scheme, QGraphicsItem* parent)
     : QGraphicsObject(parent)
@@ -15,6 +16,11 @@ TextEditMew::TextEditMew(ColorScheme& scheme, QGraphicsItem* parent)
     _focusedBorderColor  = _scheme.additionalColorGet();
     _textColor           = _scheme.textColorGet();
     _placeholderColor    = QColor(150, 150, 150);
+
+    // === КАСТОМНЫЙ ШРИФТ ===
+    int id = QFontDatabase::addApplicationFont(":/fonts/resourses/fonts/ARIAL.TTF");
+    QString family = QFontDatabase::applicationFontFamilies(id).at(0);
+    _font = QFont(family, 12);
 
     _currentHeight = _minHeight;
     _bounds = QRectF(0, 0, _maxWidth, _currentHeight);
@@ -37,9 +43,6 @@ void TextEditMew::paint(QPainter* p,
                         QWidget*)
 {
     p->setRenderHint(QPainter::Antialiasing, true);
-    // if (_scrollEnabled)
-    //     p->translate(0, -_scrollOffset);
-
 
     QRectF br = boundingRect();
     QRectF r = br.adjusted(
@@ -67,14 +70,13 @@ void TextEditMew::paint(QPainter* p,
         -_padding
         );
 
-    QFont font;
-    p->setFont(font);
-    QFontMetricsF fm(font);
-
-    // клип + скролл
     p->save();
     p->setClipRect(textRect);
     p->translate(0, -_scrollOffset);
+
+    // === ШРИФТ ===
+    p->setFont(_font);
+    QFontMetricsF fm(_font);
 
     QStringList lines = _text.split('\n');
     if (lines.isEmpty())
@@ -122,6 +124,7 @@ void TextEditMew::setText(const QString& text)
     _text = text;
     _cursorPos = _text.size();
     updateLayout();
+    ensureCursorVisible();
     emit textChanged(_text);
     update();
 }
@@ -180,14 +183,13 @@ void TextEditMew::setMaxWidth(qreal w)
 
 qreal TextEditMew::textHeight() const
 {
-    QFont font;
-    QFontMetricsF fm(font);
+    QFontMetricsF fm(_font);
 
     qreal h = 0;
     for (const auto& line : _text.split('\n'))
         h += fm.height();
 
-    return h + 2 * _padding; // без рамки, это чисто текстовая высота
+    return h + 2 * _padding;
 }
 
 void TextEditMew::keyPressEvent(QKeyEvent* e)
@@ -218,17 +220,7 @@ void TextEditMew::keyPressEvent(QKeyEvent* e)
         QChar c = t[0];
 
         if (_maxChars > 0 && _text.size() >= _maxChars)
-        {
-            if (e->key() != Qt::Key_Backspace &&
-                e->key() != Qt::Key_Delete &&
-                e->key() != Qt::Key_Left &&
-                e->key() != Qt::Key_Right &&
-                e->key() != Qt::Key_Home &&
-                e->key() != Qt::Key_End)
-            {
-                return;
-            }
-        }
+            return;
 
         if (c.isPrint() || c.isSpace())
             insertText(t);
@@ -290,17 +282,12 @@ void TextEditMew::toggleCursorVisible()
 
 void TextEditMew::updateLayout()
 {
+    QFontMetricsF fm(_font);
     qreal fullTextH = textHeight();
-    qreal newH = fullTextH;
+    qreal newH = _autoExpand ? fullTextH : _minHeight;
 
-    if (!_autoExpand)
-        newH = _minHeight;
-
-    if (newH < _minHeight)
-        newH = _minHeight;
-
-    if (newH > _maxHeight)
-        newH = _maxHeight;
+    if (newH < _minHeight) newH = _minHeight;
+    if (newH > _maxHeight) newH = _maxHeight;
 
     qreal oldH = _currentHeight;
 
@@ -311,11 +298,16 @@ void TextEditMew::updateLayout()
     if (!qFuzzyCompare(oldH, _currentHeight))
         emit heightChanged(_currentHeight);
 
-    ensureCursorVisible();
+    // === НОВАЯ ЛОГИКА АВТО-СКРОЛЛА ===
+    if (_suppressEnsureVisible)
+        _suppressEnsureVisible = false;
+    else
+        ensureCursorVisible();
+
     emit cursorMoved(cursorPositionToPoint(_cursorPos).y());
 
     update();
-    _suppressEnsureVisible = false;
+
 
 }
 
@@ -324,6 +316,7 @@ void TextEditMew::insertText(const QString& t)
     _text.insert(_cursorPos, t);
     _cursorPos += t.size();
     updateLayout();
+    ensureCursorVisible();
     emit textChanged(_text);
 }
 
@@ -335,6 +328,7 @@ void TextEditMew::deletePreviousChar()
     _text.remove(_cursorPos - 1, 1);
     _cursorPos--;
     updateLayout();
+    ensureCursorVisible();
     emit textChanged(_text);
 }
 
@@ -345,6 +339,7 @@ void TextEditMew::deleteNextChar()
 
     _text.remove(_cursorPos, 1);
     updateLayout();
+    ensureCursorVisible();
     emit textChanged(_text);
 }
 
@@ -385,16 +380,9 @@ void TextEditMew::moveCursorToStart()
 void TextEditMew::ensureCursorVisible()
 {
     if (!_scrollEnabled) { _scrollOffset = 0; return; }
+    if (_suppressEnsureVisible) return;
 
-    if (_suppressEnsureVisible)
-    {
-        _scrollOffset = 0;
-        return;
-    }
-
-
-    QFont font;
-    QFontMetricsF fm(font);
+    QFontMetricsF fm(_font);
 
     qreal fullTextH = textHeight();
     qreal visibleH  = _currentHeight - 2 * _padding;
@@ -408,13 +396,11 @@ void TextEditMew::ensureCursorVisible()
     QPointF pt = cursorPositionToPoint(_cursorPos);
     qreal cy = pt.y();
 
-    qreal deadZone = fm.height(); // высота одной строки
+    qreal deadZone = fm.height();
 
-    // вверх
     if (cy < _scrollOffset + _padding)
         _scrollOffset = cy - _padding;
 
-    // вниз (НО с мёртвой зоной)
     if (cy > _scrollOffset + visibleH - deadZone)
         _scrollOffset = cy - (visibleH - deadZone);
 
@@ -428,8 +414,7 @@ void TextEditMew::ensureCursorVisible()
 
 int TextEditMew::positionFromPoint(const QPointF& p) const
 {
-    QFont font;
-    QFontMetricsF fm(font);
+    QFontMetricsF fm(_font);
 
     QRectF textRect = QRectF(0, 0, _maxWidth, _currentHeight)
                           .adjusted(_padding, _padding,
@@ -464,8 +449,7 @@ int TextEditMew::positionFromPoint(const QPointF& p) const
 
 QPointF TextEditMew::cursorPositionToPoint(int pos) const
 {
-    QFont font;
-    QFontMetricsF fm(font);
+    QFontMetricsF fm(_font);
 
     QRectF textRect = QRectF(0, 0, _maxWidth, _currentHeight)
                           .adjusted(_padding, _padding,

@@ -42,6 +42,9 @@ public:
 
     void setScrollEnabled(bool enabled) { _scrollEnabled = enabled; }
 
+    void setFont(const QFont& f);
+
+
 
 
 signals:
@@ -112,4 +115,7 @@ private:
     bool _hasFocus = false;
 
     int _maxChars = -1; // -1 = без лимита
+
+    QFont _font;
+
 };

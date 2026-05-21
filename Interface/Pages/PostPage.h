@@ -16,8 +16,10 @@ public:
 
     void update_pages() override;
 
+
 signals:
-    void goToRecipe();
+    void goToRecipePage(int recipeID);
+
 
 private:
     // Реализация виртуальных методов Page
@@ -68,6 +70,9 @@ private:
     void removeLastIngredientRow();
 
     int getOrCreateUserCategory();
+
+    QGraphicsTextItem* errorLabel = nullptr;
+
 
 
 

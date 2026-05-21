@@ -19,11 +19,10 @@ PageChanger::PageChanger(ColorScheme &scheme, QRectF rect, DataBase* database)
     editRecipePage = new EditRecipePage(scheme, rect);
     editRecipePage->setDatabase(db);
 
-
-    BookmarksPage* bookmarks = new BookmarksPage(scheme, rect);
+    BookmarksPage* bookmarks   = new BookmarksPage(scheme, rect);
     IngredientsPage* ingredients = new IngredientsPage(scheme, rect);
-    MyGroupsPage* myGroups = new MyGroupsPage(scheme, rect);
-    ExplorePage* explore = new ExplorePage(scheme, rect);
+    MyGroupsPage* myGroups     = new MyGroupsPage(scheme, rect);
+    ExplorePage* explore       = new ExplorePage(scheme, rect);
 
     PostPage* post = new PostPage(scheme, rect);
     post->setDatabase(db);
@@ -39,13 +38,11 @@ PageChanger::PageChanger(ColorScheme &scheme, QRectF rect, DataBase* database)
     connect(editRecipePage, &EditRecipePage::goBackToRecipe,
             this, &PageChanger::backFromEdit);
 
-    connect(post, &PostPage::goToRecipe, this, &PageChanger::createdPage);
-
-
-
-
-
+    // ВАЖНО: теперь сразу открываем рецепт после создания
+    connect(post, &PostPage::goToRecipePage,
+            this, &PageChanger::openRecipe);
 }
+
 
 QVector<Page*> PageChanger::getPages()
 {
@@ -116,14 +113,5 @@ void PageChanger::backFromEdit(int recipeID)
     emit changePage(PageID::recepie);  // Mew уже сам сделает refresh() и показ
 }
 
-void PageChanger::createdPage()
-{
-    currentPage = PageID::home;
-    home->refresh();
-    recepie->refresh();
-    home->scrollToBottom();
-    emit changePage(PageID::home);
 
-
-}
 

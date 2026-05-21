@@ -12,17 +12,6 @@
 
 
 
-// enum class PageID{
-//     home,
-//     recepie,
-//     explore,
-//     bookmarks,
-//     ingredients,
-//     myGroups,
-//     more,
-//     post
-// };
-
 class PageChanger : public QObject
 {
     Q_OBJECT
@@ -40,7 +29,7 @@ public:
 public slots:
     void openRecipe(int recipeID);
     void backFromEdit(int recipeID);
-    void createdPage();
+    // void createdPage();  // БОЛЬШЕ НЕ НУЖЕН
 
 signals:
     void changePage(PageID id);
@@ -49,9 +38,9 @@ private:
     QVector<Page*> pages;
     PageID currentPage = PageID::home;
 
-   // DataBase* db;          // <--- ДОБАВЛЕНО
     RecepiePage* recepie;
     EditRecipePage *editRecipePage;
     HomePage* home;
 };
+
 

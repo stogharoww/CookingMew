@@ -1,6 +1,8 @@
 #include "PostPage.h"
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QFont>
+#include <QDebug>
 
 PostPage::PostPage(ColorScheme& scheme, QRectF rect)
     : Page(scheme, rect, PageID::post),
@@ -23,15 +25,13 @@ void PostPage::update_pages()
         return;
     }
 
-    // если хотим одноразовый rebuild — можно раскомментировать
-    // needRebuild = false;
-
-    if (mainRectItem) { delete mainRectItem; mainRectItem = nullptr; }
+    if (mainRectItem)  { delete mainRectItem;  mainRectItem  = nullptr; }
     if (rightRectItem) { delete rightRectItem; rightRectItem = nullptr; }
 
     ingredientRows.clear();
-    addIngredientBtn = nullptr;
+    addIngredientBtn    = nullptr;
     removeIngredientBtn = nullptr;
+    errorLabel          = nullptr;
 
     Page::update_pages();
 }
@@ -47,7 +47,7 @@ void PostPage::create_main_pannel()
 
 void PostPage::create_right_pannel()
 {
-    // не используется базовым кодом, всё делаем в editMode
+    // всё делаем в editMode
 }
 
 void PostPage::editMode()
@@ -77,6 +77,17 @@ void PostPage::buildMainPanel()
     mainRectItem->setBrush(scheme.backgroundGet());
 
     qreal y = margin;
+
+    // ERROR LABEL (красный текст над названием)
+    errorLabel = new QGraphicsTextItem(mainRectItem);
+    {
+        QFont ef; ef.setPointSize(12);
+        errorLabel->setFont(ef);
+        errorLabel->setDefaultTextColor(QColor("#ff5555"));
+        errorLabel->setPlainText("");
+        errorLabel->setPos(margin, y);
+        y += errorLabel->boundingRect().height() + 5;
+    }
 
     // TITLE
     qreal titleWidth = mainRectItem->rect().width() - 2 * margin;
@@ -113,8 +124,6 @@ void PostPage::buildMainPanel()
 
     connect(saveBtn, &ButtonMew::clicked, this, [=]() {
         saveRecipe();
-
-
     });
 
     y += saveBtn->boundingRect().height() + 30;
@@ -228,7 +237,7 @@ void PostPage::removeLastIngredientRow()
 void PostPage::repositionIngredientRows()
 {
     qreal rowHeight = 45;
-    qreal startX = 20;
+    qreal startX    = 20;
 
     qreal y = ingredientsTopY;
 
@@ -246,7 +255,6 @@ void PostPage::repositionIngredientRows()
                                     y + 10);
 }
 
-
 // ======================================================
 //                 SAVE
 // ======================================================
@@ -255,8 +263,21 @@ void PostPage::saveRecipe()
 {
     if (!db) return;
 
-    QString title = titleEdit->text();
+    QString title = titleEdit->text().trimmed();
     QString steps = stepsEdit->text();
+
+    // проверка названия
+    if (title.isEmpty())
+    {
+        if (errorLabel)
+            errorLabel->setPlainText("напишите название рецепта");
+        return;
+    }
+    else
+    {
+        if (errorLabel)
+            errorLabel->setPlainText("");
+    }
 
     QSqlDatabase dbsql = QSqlDatabase::database("cookbook_connection");
     if (!dbsql.isOpen()) return;
@@ -268,7 +289,7 @@ void PostPage::saveRecipe()
               "VALUES (:title, :steps, :cat)");
     q.bindValue(":title", title);
     q.bindValue(":steps", steps);
-    q.bindValue(":cat", catId);
+    q.bindValue(":cat",   catId);
 
     if (!q.exec()) {
         qDebug() << "INSERT FAILED:" << q.lastError();
@@ -280,7 +301,8 @@ void PostPage::saveRecipe()
 
     saveIngredients();
 
-    emit goToRecipe();
+    // сразу в страницу рецепта
+    emit goToRecipePage(_recipeID);
 }
 
 void PostPage::saveIngredients()
@@ -292,7 +314,7 @@ void PostPage::saveIngredients()
             continue;
 
         double amount = row->amount().toDouble();
-        int unitId = row->unitId();
+        int    unitId = row->unitId();
 
         int ingId = findOrCreateIngredient(name);
 
@@ -336,32 +358,25 @@ void PostPage::insertIngredientRow(const Recipeingred& ri)
     db->RecipeIngredientsTable().Add(ri);
 }
 
-
-
-
-
 int PostPage::getOrCreateUserCategory()
 {
-    // 1. Ищем категорию
     for (const auto& cat : db->CategoriesTable().Vector())
     {
         if (cat.name.compare("Пользовательские", Qt::CaseInsensitive) == 0)
             return cat.id;
     }
 
-    // 2. Если нет — создаём
-    CategoriesRec  c;
+    CategoriesRec c;
     c.name = "Пользовательские";
 
     db->CategoriesTable().Add(c);
     db->CategoriesTable().Read();
 
-    // 3. Ищем снова
     for (const auto& cat : db->CategoriesTable().Vector())
     {
         if (cat.name == "Пользовательские")
             return cat.id;
     }
 
-    return 1; // fallback, но такого не будет
+    return 1;
 }
